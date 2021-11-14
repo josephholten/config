@@ -1,0 +1,18 @@
+{
+  "installedVersion": "1.18.1",
+  "appId": "fe1ff7df-fa98-4031-a026-5002aac1d95f",
+  "emailVerified": true,
+  "sends_dba1579a-8029-4042-a284-aae700dc6871": {},
+  "lastSync_dba1579a-8029-4042-a284-aae700dc6871": "1970-01-01T00:00:00.000Z",
+  "encProviderKeys": {},
+  "environmentUrls": {
+    "base": null,
+    "api": null,
+    "identity": null,
+    "webVault": null,
+    "icons": null,
+    "notifications": null,
+    "events": null,
+    "enterprise": null
+  }
+}

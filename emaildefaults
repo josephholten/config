@@ -1,0 +1,11 @@
+[Defaults]
+Profile=Default
+
+[PROFILE_Default]
+EmailAddress=
+EmailClient[$e]=aerc.desktop
+FullName=Joseph Holten
+Organization=
+ReplyAddr=
+ServerType=
+TerminalClient=true

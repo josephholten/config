@@ -1,0 +1,8 @@
+Threshold = 95
+DisplayMonitorSources = false
+EnableUpdates = true
+GuiltTripped = false
+FilterInput = true
+FilterOutput = false
+LastUsedInput = "alsa_input.usb-046d_HD_Pro_Webcam_C920_292E6ADF-02.analog-stereo"
+LastUsedOutput = ""
