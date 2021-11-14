@@ -1,0 +1,21 @@
+# for monitor configuration
+xrandr --output DP-3 --primary --pos 2160x1500
+xrandr --output DP-2 --rotate left
+
+# screen saver and screen off
+xset s on
+xset s 1800
+xset dpms 2000 2000 2000 
+
+# key repeat rate
+xset r rate 400
+
+# layouts
+setxkbmap -layout de -variant nodeadkeys
+
+# start programs in every x session
+xbanish &           # no mouse when not needed
+xss-lock slock &    # screen saver program
+nextcloud &         # nextcloud sync
+/usr/bin/dunst &    # notification server
+nm-applet &         # network applet in systray
