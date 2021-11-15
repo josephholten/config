@@ -1,9 +1,16 @@
-#!/bin/sh
+#!/bin/bash
 
 pgrep -x sxhkd > /dev/null || sxhkd &
+stalonetray &
 
-bspc monitor DP-2 -d I II III IV V
-bspc monitor DP-3 -d VI VII VIII IX X
+name=$(cat /etc/hostname)
+if [[ $name == joseph-laptop ]]; then
+    bspc monitor eDP1 -d I II III IV V VI VII VIII IX X
+else 
+    bspc monitor DP-2 -d I II III IV V
+    bspc monitor DP-3 -d VI VII VIII IX X
+fi
+
 wmname LG3D
 
 bspc config border_width         2
@@ -23,7 +30,7 @@ bspc rule -a Pavucontrol state=floating
 bspc rule -a Emacs state=tiled
 
 /home/joseph/.config/polybar/launch.sh
-nm-applet
+kill $(pidof stalonetray)
+nm-applet &
 
 notify-send bspwm "WM started"
-
