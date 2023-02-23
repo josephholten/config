@@ -1,11 +1,13 @@
-# for monitor configuration
-xrandr --output DP-3 --primary --pos 2160x1500
-xrandr --output DP-2 --rotate left
-
 # screen saver and screen off
 xset s on
 xset s 1800
 xset dpms 2000 2000 2000 
+
+# set primary monitor
+mons --primary eDP1
+
+# by default duplicate screen to external monitor
+mons -a -x "/home/joseph/bin/autoconfigure_monitors.sh"
 
 # key repeat rate
 xset r rate 400

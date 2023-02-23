@@ -36,5 +36,4 @@ fi
 [ -f /etc/xprofile ] && . /etc/xprofile
 [ -f ~/.xprofile ] && . ~/.xprofile
 
-nm-applet &
 exec bspwm

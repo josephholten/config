@@ -31,6 +31,8 @@ call vundle#begin()
     Plugin 'fatih/vim-go'
     Plugin 'cdelledonne/vim-cmake'
     Plugin 'neomake/neomake'
+    Plugin 'junegunn/fzf'
+    Plugin 'junegunn/fzf.vim'
 
 " All of your Plugins must be added before the following line
 call vundle#end()            " required
@@ -157,11 +159,19 @@ set foldlevel=99
 " Enable folding with the spacebar
 nnoremap <C-space> za
 
+" Leader
+let mapleader = "ö"
+noremap <leader>t :bel term<cr>
+noremap <leader>f :Files<cr>
+noremap <leader>F :Lines<cr>
+
 "split navigations
 nnoremap <C-J> <C-W><C-J>
 nnoremap <C-K> <C-W><C-K>
 nnoremap <C-L> <C-W><C-L>
 nnoremap <C-H> <C-W><C-H>
+
+set nrformats+=alpha
 
 "" python indentation
 "au BufNewFile,BufRead *.py
@@ -214,3 +224,4 @@ let g:go_auto_type_info = 1           " Automatically get signature/type info fo
 " neomake
 " call neomake#configure#automake('w', 500)
 let g:neomake_open_list = 2
+

@@ -1,7 +1,6 @@
 #!/bin/bash
 
 pgrep -x sxhkd > /dev/null || sxhkd &
-stalonetray &
 
 name=$(cat /etc/hostname)
 if [[ $name == joseph-laptop ]]; then
@@ -21,16 +20,17 @@ bspc config split_ratio          0.52
 bspc config borderless_monocle   true
 bspc config gapless_monocle      true
 
-bspc rule -a Gimp-2.10 desktop='^8' state=floating follow=on
-bspc rule -a Thunderbird desktop='^1'
+#bspc rule -a Thunderbird desktop='^1'
 bspc rule -a Nextcloud state=floating
 bspc rule -a discord desktop='^1'
 bspc rule -a Zathura state=tiled
 bspc rule -a Pavucontrol state=floating
 bspc rule -a Emacs state=tiled
+bspc rule -a easy68k.exe state=tiled
+bspc rule -a CoreShot state=floating
+bspc rule -a Blueberry.py state=floating
+bspc rule -a st-floating state=floating
 
 /home/joseph/.config/polybar/launch.sh
-kill $(pidof stalonetray)
-nm-applet &
 
-notify-send bspwm "WM started"
+/home/joseph/bin/test_network.sh &

@@ -1,6 +1,6 @@
 configuration {
     modi: "window,drun,run,ssh,combi,calc";
-    modi: "shutdown:rofi_shutdown.sh";
+    modi: "shutdown:rofi_shutdown.sh,language:rofi_language.sh";
     combi-modi: "drun,run,window";
     matching: "fuzzy";
     case-sensitive: false;
