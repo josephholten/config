@@ -5,55 +5,12 @@
 [[ $- != *i* ]] && return
 
 [ -r /usr/share/bash-completion/bash_completion ] && . /usr/share/bash-completion/bash_completion
-
-# ----- COLOR TERMINAL ----------------
-
-use_color=true
-
-# Set colorful PS1 only on colorful terminals.
-# dircolors --print-database uses its own built-in database
-# instead of using /etc/DIR_COLORS.  Try to use the external file
-# first to take advantage of user additions.  Use internal bash
-# globbing instead of external grep binary.
-safe_term=${TERM//[^[:alnum:]]/?}   # sanitize TERM
-match_lhs=""
-[[ -f ~/.dir_colors   ]] && match_lhs="${match_lhs}$(<~/.dir_colors)"
-[[ -f /etc/DIR_COLORS ]] && match_lhs="${match_lhs}$(</etc/DIR_COLORS)"
-[[ -z ${match_lhs}    ]] \
-	&& type -P dircolors >/dev/null \
-	&& match_lhs=$(dircolors --print-database)
-[[ $'\n'${match_lhs} == *$'\n'"TERM "${safe_term}* ]] && use_color=true
-
-if ${use_color} ; then
-	# Enable colors for ls, etc.  Prefer ~/.dir_colors #64489
-	if type -P dircolors >/dev/null ; then
-		if [[ -f ~/.dir_colors ]] ; then
-			eval $(dircolors -b ~/.dir_colors)
-		elif [[ -f /etc/DIR_COLORS ]] ; then
-			eval $(dircolors -b /etc/DIR_COLORS)
-		fi
-	fi
-
-	#alias ls='ls --color=auto'
-	alias ls='exa'
-	alias grep='grep --colour=auto'
-	alias egrep='egrep --colour=auto'
-	alias fgrep='fgrep --colour=auto'
-fi
-
-unset use_color safe_term match_lhs sh
-
+#
 # --------------- BASH OPTIONS ------------------
 
-xhost +local:root > /dev/null 2>&1
 complete -cf sudo
-# Bash won't get SIGWINCH if another process is in the foreground.
-# Enable checkwinsize so that bash will check the terminal size when
-# it regains control.  #65623
-# http://cnswww.cns.cwru.edu/~chet/bash/FAQ (E11)
 shopt -s checkwinsize
 shopt -s expand_aliases
-# Enable history appending instead of overwriting.  #139609
 shopt -s histappend
 shopt -s extglob
 shopt -s dotglob
@@ -81,7 +38,7 @@ __prompt_command() {
         local prompt_color="${purple}"
     fi
 
-    PS1="${conda_env}${prompt_color}j-laptop \W ${prompt_symbol} ${reset}"
+    PS1="${prompt_color}\W ${prompt_symbol} ${reset}"
  
     if [ $EXIT != 0 ]; then
         PS1+="${red}[${EXIT}]${reset} "
@@ -93,15 +50,8 @@ __prompt_command() {
 # setting appropriate paths
 GOPATH=$HOME/.gopath
 export PATH="/home/joseph/bin/:/usr/local/texlive/2021/bin/x86_64-linux:/home/joseph/bin:/home/joseph/.emacs.d/bin:/home/joseph/.local/bin:/usr/lib/emscripten:$GOPATH:$GOPATH/bin:/opt/Citrix/ICAClient:/home/joseph/programming/gcc-cross-compiler/opt/cross/bin:/opt/adaptivecpp/bin:$PATH"
-#export CPATH="/usr/lib/emscripten/system/include/"
 export MANPATH="/usr/local/texlive/2021/texmf-dist/doc/man:$MANPATH"
 export INFOPATH="/usr/local/texlive/2021/texmf-dist/doc/info:$INFOPATH"
-
-
-# setting path s.t. python finds .pythonrc
-export PYTHONSTARTUP=~/.pyhthonrc
-
-# export FZF_DEFAULT_COMMAND="fd --hidden --type f"
 
 # >>> conda initialize >>>
 # !! Contents within this block are managed by 'conda init' !!
@@ -118,33 +68,21 @@ fi
 unset __conda_setup
 # <<< conda initialize <<<
 
-. "$HOME/.cargo/env"
-
 
 
 #  -------------- FUNCTIONS & ALIAS' -------------------
 
-#alias cp="cp -i"                          # confirm before overwriting something
-alias df='df -h'                          # human-readable sizes
-alias free='free -m'                      # show sizes in MB
+alias cp="cp -i"                          # confirm before overwriting something
 alias more=less
-# alias tlmgr='/usr/share/texmf-dist/scripts/texlive/tlmgr.pl --usermode' # this was needed with texlive from pacman
 alias rg='ranger_cd'
-#alias lock-session="loginctl lock-session"
 
-#alias ghostscript="gs"
 alias vim='vim --servername vim'
 alias gs='git status'
 alias gd='git diff'
 alias gap='git add . -p'
 alias grp='git restore . -p'
-alias bm='bashmount'
-#alias of='open $(fzf)'
-#alias vf='vim -c :Files!'
-alias wifi='nmtui'
 alias wgup='sudo wg-quick up wg0'
 alias wgdown='sudo wg-quick down wg0'
-alias google-chrome='google-chrome-stable'
 
 of() {
     fd --hidden --type f | fzf --print0 | xargs -0 -I {} bash -c 'xdg-open "{}" & disown'
@@ -154,63 +92,8 @@ vf() {
     fd --hidden --type f | fzf --print0 | xargs -0 -o vim
 }
 
-battery() {
-    upower -i /org/freedesktop/UPower/devices/battery_BAT0
-}
-
-mountusb() {
-    if [[ ! -z $1 ]]; then
-        udisksctl mount -b $1
-    else
-        udisksctl mount -b /dev/sda || udisksctl mount -b /dev/sda1
-    fi
-}
-
-umountusb() {
-    if [[ ! -z $1 ]]; then
-        udisksctl unmount -b $1
-    else
-        udisksctl unmount -b /dev/sda || udisksctl unmount -b /dev/sda1
-    fi
-}
-
 dc() {
     sudo docker-compose $@
-}
-
-colors() {
-	local fgc bgc vals seq0
-
-	printf "Color escapes are %s\n" '\e[${value};...;${value}m'
-	printf "Values 30..37 are \e[33mforeground colors\e[m\n"
-	printf "Values 40..47 are \e[43mbackground colors\e[m\n"
-	printf "Value  1 gives a  \e[1mbold-faced look\e[m\n\n"
-
-	# foreground colors
-	for fgc in {30..37}; do
-		# background colors
-		for bgc in {40..47}; do
-			fgc=${fgc#37} # white
-			bgc=${bgc#40} # black
-
-			vals="${fgc:+$fgc;}${bgc}"
-			vals=${vals%%;}
-
-			seq0="${vals:+\e[${vals}m}"
-			printf "  %-9s" "${seq0:-(default)}"
-			printf " ${seq0}TEXT\e[m"
-			printf " \e[${vals:+${vals+$vals;}}1mBOLD\e[m"
-		done
-		echo; echo
-	done
-}
-
-# open jupyter notebooks as background process
-function jupyterd () {
-    if ! $(type -t jupyter); then
-        conda activate node
-    fi
-    jupyter notebook $@ & disown
 }
 
 # open stuff in the background
@@ -226,53 +109,3 @@ function open () {
     done
 }
 
-cds() {
-        local dir="$1"
-        local dir="${dir:=$HOME}"
-        if [[ -d "$dir" ]]; then
-                cd "$dir" >/dev/null; ls --color=auto
-        else
-                echo "bash: cdls: $dir: Directory not found"
-        fi
-}
-
-# ex - archive extractor
-# usage: ex <file>
-ex ()
-{
-  if [ -f $1 ] ; then
-    case $1 in
-      *.tar.bz2)   tar xjf $1   ;;
-      *.tar.gz)    tar xzf $1   ;;
-      *.bz2)       bunzip2 $1   ;;
-      *.rar)       unrar x $1     ;;
-      *.gz)        gunzip $1    ;;
-      *.tar)       tar xf $1    ;;
-      *.tbz2)      tar xjf $1   ;;
-      *.tgz)       tar xzf $1   ;;
-      *.zip)       unzip $1     ;;
-      *.Z)         uncompress $1;;
-      *.7z)        7z x $1      ;;
-      *)           echo "'$1' cannot be extracted via ex()" ;;
-    esac
-  else
-    echo "'$1' is not a valid file"
-  fi
-}
-
-ranger_cd() {
-	if [ -z "$RANGER_LEVEL" ]; then
-        temp_file="$(mktemp -t "ranger_cd.XXXXXXXXXX")"
-        ranger --choosedir="$temp_file" -- "${@:-$PWD}"
-        if chosen_dir="$(cat -- "$temp_file")" && [ -n "$chosen_dir" ] && [ "$chosen_dir" != "$PWD" ]; then
-            cd -- "$chosen_dir"
-        fi
-        rm -f -- "$temp_file"
-    else
-        exit
-    fi
-
-}
-
-
-$RANGERCD && unset RANGERCD
