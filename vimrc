@@ -3,7 +3,7 @@ filetype off                  " required
 
 set encoding=UTF-8
 set guifont=RobotoMono\ Nerd\ Font\ Mono\ 11
-set conceallevel=3
+set conceallevel=2
 
 " set the runtime path to include Vundle and initialize
 set rtp+=~/.vim/bundle/Vundle.vim
@@ -13,19 +13,18 @@ call vundle#begin()
     Plugin 'VundleVim/Vundle.vim'
     Plugin 'preservim/nerdtree'
     " Plugin 'morhetz/gruvbox'
-    Plugin 'agude/vim-eldar'
-    Plugin 'vim-airline/vim-airline'
-    Plugin 'vim-airline/vim-airline-themes'
-    Plugin 'ryanoasis/vim-devicons'
+    " Plugin 'agude/vim-eldar'
+    " Plugin 'vim-airline/vim-airline'
+    " Plugin 'vim-airline/vim-airline-themes'
+    " Plugin 'ryanoasis/vim-devicons'
+    " Plugin 'seandewar/paragon.vim'
     Plugin 'tiagofumo/vim-nerdtree-syntax-highlight'
     Plugin 'tmhedberg/SimpylFold'
     Plugin 'vim-scripts/indentpython.vim'
-    Plugin 'Valloric/YouCompleteMe'
+    " Plugin 'Valloric/YouCompleteMe'
     " Plugin 'vim-syntastic/syntastic'
     Plugin 'nvie/vim-flake8'
-    Plugin 'itchyny/vim-haskell-indent'
     " Plugin 'neoclide/coc.nvim'
-    Plugin 'fladson/vim-kitty'
     Plugin 'vimwiki/vimwiki'
     Plugin 'lervag/vimtex'
     Plugin 'fatih/vim-go'
@@ -58,10 +57,10 @@ if exists("g:loaded_webdevicons")
     call webdevicons#refresh()
 endif
 
-if has('syntax')
-    syntax enable
-    silent! colorscheme eldar
-endif
+"if has('syntax')
+"    syntax enable
+"    silent! colorscheme eldar
+"endif
 
 " gruvbox settings
 " let g:gruvbox_contrast_dark = 'hard'
@@ -81,32 +80,32 @@ let NERDTreeShowHidden=1
 " autocmd VimEnter * wincmd p
 
 " air-line
-let g:airline_powerline_fonts = 1
-let g:airline#extensions#tabline#enabled = 1
-let g:airline#extensions#tabline#buffer_nr_show = 1
-
-if !exists('g:airline_symbols')
-    let g:airline_symbols = {}
-endif
-let g:airline_left_sep = '»'
-let g:airline_left_sep = '▶'
-let g:airline_right_sep = '«'
-let g:airline_right_sep = '◀'
-let g:airline_symbols.linenr = '␊'
-let g:airline_symbols.linenr = '␤'
-let g:airline_symbols.linenr = '¶'
-let g:airline_symbols.branch = '⎇'
-let g:airline_symbols.paste = 'ρ'
-let g:airline_symbols.paste = 'Þ'
-let g:airline_symbols.paste = '∥'
-let g:airline_symbols.whitespace = 'Ξ'
-let g:airline_left_sep = ''
-let g:airline_left_alt_sep = ''
-let g:airline_right_sep = ''
-let g:airline_right_alt_sep = ''
-let g:airline_symbols.branch = ''
-let g:airline_symbols.readonly = ''
-let g:airline_symbols.linenr = ''
+"let g:airline_powerline_fonts = 1
+"let g:airline#extensions#tabline#enabled = 1
+"let g:airline#extensions#tabline#buffer_nr_show = 1
+"
+"if !exists('g:airline_symbols')
+"    let g:airline_symbols = {}
+"endif
+"let g:airline_left_sep = '»'
+"let g:airline_left_sep = '▶'
+"let g:airline_right_sep = '«'
+"let g:airline_right_sep = '◀'
+"let g:airline_symbols.linenr = '␊'
+"let g:airline_symbols.linenr = '␤'
+"let g:airline_symbols.linenr = '¶'
+"let g:airline_symbols.branch = '⎇'
+"let g:airline_symbols.paste = 'ρ'
+"let g:airline_symbols.paste = 'Þ'
+"let g:airline_symbols.paste = '∥'
+"let g:airline_symbols.whitespace = 'Ξ'
+"let g:airline_left_sep = ''
+"let g:airline_left_alt_sep = ''
+"let g:airline_right_sep = ''
+"let g:airline_right_alt_sep = ''
+"let g:airline_symbols.branch = ''
+"let g:airline_symbols.readonly = ''
+"let g:airline_symbols.linenr = ''
 
 
 " ----------------------------------------------
@@ -146,12 +145,12 @@ set showmatch
 set showcmd
 
 " Tabs
-set tabstop=4
+set tabstop=2
 " always uses spaces instead of tab characters
 set expandtab
 set autoindent
 " size of an "indent"
-set shiftwidth=4
+set shiftwidth=2
 
 " Enable folding
 set foldmethod=indent
@@ -160,9 +159,10 @@ set foldlevel=99
 nnoremap <C-space> za
 
 " Leader
-let mapleader = "ö"
+" let g:mapleader = "ö"
+map ö <leader>
 noremap <leader>t :bel term<cr>
-noremap <leader>f :Files<cr>
+noremap <leader>f :GFiles<cr>
 noremap <leader>F :Lines<cr>
 
 "split navigations
@@ -195,16 +195,6 @@ set nrformats+=alpha
 let g:ycm_autoclose_preview_window_after_completion=1
 map <leader>g  :YcmCompleter GoToDefinitionElseDeclaration<CR>
 
-"python with virtualenv support
-py3 << EOF
-import os
-import sys
-if 'VIRTUAL_ENV' in os.environ:
-  project_base_dir = os.environ['VIRTUAL_ENV']
-  activate_this = os.path.join(project_base_dir, 'bin/activate_this.py')
-  execfile(activate_this, dict(__file__=activate_this))
-EOF
-
 let g:go_fmt_command = "goimports"    " Run goimports along gofmt on each save
 let g:go_auto_type_info = 1           " Automatically get signature/type info for object under cursor
 :augroup gogroup
@@ -225,3 +215,16 @@ let g:go_auto_type_info = 1           " Automatically get signature/type info fo
 " call neomake#configure#automake('w', 500)
 let g:neomake_open_list = 2
 
+" VimTeX
+let g:vimtex_view_method = 'zathura'
+let g:vimtex_view_skim_activate = 1
+
+if empty(v:servername) && exists('*remote_startserver')
+      call remote_startserver('VIM')
+endif
+
+set background=dark
+colorscheme quiet
+
+autocmd filetype fortran set colorcolumn=7,70
+autocmd filetype !fortran set colorcolumn=

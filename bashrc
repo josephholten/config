@@ -55,6 +55,9 @@ shopt -s checkwinsize
 shopt -s expand_aliases
 # Enable history appending instead of overwriting.  #139609
 shopt -s histappend
+shopt -s extglob
+shopt -s dotglob
+shopt -s globstar
 set -o vi
 
 
@@ -88,14 +91,17 @@ __prompt_command() {
 # ---------------- PATHS & VARIABLES -----------------------------
 
 # setting appropriate paths
-export PATH="/home/joseph/bin/:/usr/local/texlive/2021/bin/x86_64-linux:/home/joseph/bin:/home/joseph/.emacs.d/bin:/home/joseph/.local/bin:$PATH"
+GOPATH=$HOME/.gopath
+export PATH="/home/joseph/bin/:/usr/local/texlive/2021/bin/x86_64-linux:/home/joseph/bin:/home/joseph/.emacs.d/bin:/home/joseph/.local/bin:/usr/lib/emscripten:$GOPATH:$GOPATH/bin:/opt/Citrix/ICAClient:/home/joseph/programming/gcc-cross-compiler/opt/cross/bin:/opt/adaptivecpp/bin:$PATH"
+#export CPATH="/usr/lib/emscripten/system/include/"
 export MANPATH="/usr/local/texlive/2021/texmf-dist/doc/man:$MANPATH"
 export INFOPATH="/usr/local/texlive/2021/texmf-dist/doc/info:$INFOPATH"
+
 
 # setting path s.t. python finds .pythonrc
 export PYTHONSTARTUP=~/.pyhthonrc
 
-export FZF_DEFAULT_COMMAND="fd --hidden"
+# export FZF_DEFAULT_COMMAND="fd --hidden --type f"
 
 # >>> conda initialize >>>
 # !! Contents within this block are managed by 'conda init' !!
@@ -118,19 +124,55 @@ unset __conda_setup
 
 #  -------------- FUNCTIONS & ALIAS' -------------------
 
-alias cp="cp -i"                          # confirm before overwriting something
+#alias cp="cp -i"                          # confirm before overwriting something
 alias df='df -h'                          # human-readable sizes
 alias free='free -m'                      # show sizes in MB
 alias more=less
 # alias tlmgr='/usr/share/texmf-dist/scripts/texlive/tlmgr.pl --usermode' # this was needed with texlive from pacman
-alias rg='ranger'
+alias rg='ranger_cd'
 #alias lock-session="loginctl lock-session"
 
+#alias ghostscript="gs"
+alias vim='vim --servername vim'
 alias gs='git status'
+alias gd='git diff'
 alias gap='git add . -p'
+alias grp='git restore . -p'
 alias bm='bashmount'
-alias of='open $(fzf)'
-alias vf='vim -c :Files!'
+#alias of='open $(fzf)'
+#alias vf='vim -c :Files!'
+alias wifi='nmtui'
+alias wgup='sudo wg-quick up wg0'
+alias wgdown='sudo wg-quick down wg0'
+alias google-chrome='google-chrome-stable'
+
+of() {
+    fd --hidden --type f | fzf --print0 | xargs -0 -I {} bash -c 'xdg-open "{}" & disown'
+}
+
+vf() {
+    fd --hidden --type f | fzf --print0 | xargs -0 -o vim
+}
+
+battery() {
+    upower -i /org/freedesktop/UPower/devices/battery_BAT0
+}
+
+mountusb() {
+    if [[ ! -z $1 ]]; then
+        udisksctl mount -b $1
+    else
+        udisksctl mount -b /dev/sda || udisksctl mount -b /dev/sda1
+    fi
+}
+
+umountusb() {
+    if [[ ! -z $1 ]]; then
+        udisksctl unmount -b $1
+    else
+        udisksctl unmount -b /dev/sda || udisksctl unmount -b /dev/sda1
+    fi
+}
 
 dc() {
     sudo docker-compose $@
@@ -218,12 +260,19 @@ ex ()
   fi
 }
 
-
-function fs_drucken() {
-    # if path is file
-    if [ -f "$1" ]; then
-        ssh mathphys lp -d sw-duplex < "$1"
+ranger_cd() {
+	if [ -z "$RANGER_LEVEL" ]; then
+        temp_file="$(mktemp -t "ranger_cd.XXXXXXXXXX")"
+        ranger --choosedir="$temp_file" -- "${@:-$PWD}"
+        if chosen_dir="$(cat -- "$temp_file")" && [ -n "$chosen_dir" ] && [ "$chosen_dir" != "$PWD" ]; then
+            cd -- "$chosen_dir"
+        fi
+        rm -f -- "$temp_file"
     else
-        echo "Error: path $1 is not a file!"
+        exit
     fi
+
 }
+
+
+$RANGERCD && unset RANGERCD

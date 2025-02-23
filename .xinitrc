@@ -36,4 +36,5 @@ fi
 [ -f /etc/xprofile ] && . /etc/xprofile
 [ -f ~/.xprofile ] && . ~/.xprofile
 
-exec bspwm
+#exec bspwm
+exec i3
