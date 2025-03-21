@@ -20,7 +20,7 @@ Host max-server
 Host joseph-desktop
     user joseph
     ProxyJump joseph-server
-    
+
 Host mathphys
     user joseph
     Hostname shell.mathphys.stura.uni-heidelberg.de
@@ -40,3 +40,18 @@ Host downstairs
 
 Host filmclub
     Hostname studentischerfilmclub.de
+
+Host github
+    HostName github.com
+    User git
+    IdentityFile ~/.ssh/id_rsa
+    IdentitiesOnly yes
+
+Host github.com-anni
+    HostName github.com
+    User git
+    IdentityFile ~/.ssh/id_anni
+    IdentitiesOnly yes
+
+
+
