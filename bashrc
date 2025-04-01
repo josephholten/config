@@ -74,7 +74,7 @@ unset __conda_setup
 
 alias cp="cp -i"                          # confirm before overwriting something
 alias more=less
-alias rg='ranger_cd'
+alias rg='ranger'
 
 alias vim='vim --servername vim'
 alias gs='git status'
