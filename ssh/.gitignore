@@ -1,2 +1,6 @@
 authorized_keys
 known_hosts
+known_hosts.old
+id_rsa
+id_anni
+
