@@ -39,7 +39,7 @@ __prompt_command() {
     fi
 
     PS1="${prompt_color}\W ${prompt_symbol} ${reset}"
- 
+
     if [ $EXIT != 0 ]; then
         PS1+="${red}[${EXIT}]${reset} "
     fi
@@ -72,6 +72,7 @@ unset __conda_setup
 
 #  -------------- FUNCTIONS & ALIAS' -------------------
 
+alias ls="ls --color --group-directories-first"
 alias cp="cp -i"                          # confirm before overwriting something
 alias more=less
 alias rg='ranger'
