@@ -1,42 +1,12 @@
 Host aeghpc10?
     user jholten
 
-Host aeghpc107
-    Hostname aeghpc107.ifi.uni-heidelberg.de
-
-Host aeghpc108
-    Hostname aeghpc108.ifi.uni-heidelberg.de
-
-Host aeghpc109
-    Hostname aeghpc109.ifi.uni-heidelberg.de
-
-Host jannick-server
-    user algotest
-    Hostname server2.jannickb.de
-
 Host max-server
     Hostname hirsch.ee
-
-Host joseph-desktop
-    user joseph
-    ProxyJump joseph-server
 
 Host mathphys
     user joseph
     Hostname shell.mathphys.stura.uni-heidelberg.de
-
-Host donkey
-    user jholten
-    Hostname donkey.iwr.uni-heidelberg.de
-    Port 22922
-    ForwardAgent yes
-    DynamicForward 9050
-
-Host downstairs
-    user jholten
-    Hostname 10.10.1.22
-    ForwardAgent yes
-    ProxyJump donkey
 
 Host filmclub
     Hostname studentischerfilmclub.de
@@ -52,6 +22,4 @@ Host github.com-anni
     User git
     IdentityFile ~/.ssh/id_anni
     IdentitiesOnly yes
-
-
 
