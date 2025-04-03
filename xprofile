@@ -1,27 +1,15 @@
 # screen saver and screen off
 # TODO: this should go in an autorandr posthook
 xset s on
-xset s 1800
-xset dpms 2000 2000 2000
+xset s 60
 
 # key repeat rate
 xset r rate 400
 
-# 2000x1200 @ 60.00 Hz (GTF) hsync: 74.52 kHz; pclk: 201.50 MHz
-#xrandr --newmode "2000x1200_60.00"  201.50  2000 2136 2352 2704  1200 1201 1204 1242  -HSync +Vsync
-#xrandr --addmode VIRTUAL1 2000x1200_60.00
-
-
-# layouts
-setxkbmap -layout de -variant nodeadkeys
-
 # start programs in every x session
 xbanish &           # no mouse when not needed
-#xss-lock --transfer-sleep-lock -- /home/joseph/src/i3lock-multimonitor/lock -i lockscreen_laptop-v2.png -a '--nofork -kef --inside-color=00000000 --ring-color=ffffff --line-color=000000 --separator-color=ffffff00 --time-color=ffffff --date-color=ffffff --keyhl-color=ba55d3 -c 000000' &
-#xss-lock --transfer-sleep-lock -- i3lock --nofork &
-xss-lock --transfer-sleep-lock -- /home/joseph/src/i3lock-multimonitor/lock -i /home/joseph/src/i3lock-multimonitor/lockscreen_laptop-v2.png -a '--nofork -kef --inside-color=00000000 --ring-color=ffffff --line-color=000000 --separator-color=ffffff00 --time-color=ffffff --date-color=ffffff --keyhl-color=ba55d3 -c 000000' &
-
-autorandr --cycle   # detect screen configuration
 /usr/bin/dunst &    # notification server
 nm-applet &         # network applet in systray
-
+autorandr --cycle   # detect screen configuration
+xss-lock xsecurelock &
+st -c "st-floating" &

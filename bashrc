@@ -73,7 +73,7 @@ unset __conda_setup
 #  -------------- FUNCTIONS & ALIAS' -------------------
 
 alias ls="ls --color --group-directories-first"
-alias cp="cp -i"                          # confirm before overwriting something
+alias cp="cp -ir"                          # confirm before overwriting something
 alias more=less
 alias rg='ranger'
 
