@@ -1,0 +1,16 @@
+/home/joseph
+/etc
+/root
+/usr/local/bin
+
+# INCLUDE:
+# /home/joseph
+#     .config
+#     .minecraft
+# 
+# /etc
+# 
+# /root
+# 
+# /usr/local/bin
+#

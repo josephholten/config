@@ -1,0 +1,133 @@
+# ignore all hidden folders and files in home directory 
+# except save games and config 
+/home/joseph/.*
+/root/.*
+!/home/joseph/.minecraft/saves
+!/home/joseph/.minecraft/screenshots
+!/home/joseph/.myconfig
+!/root/.myconfig
+
+# ignore lutris (ea app)
+# except for save games
+/home/joseph/lutris
+!/home/joseph/lustris/ea-app/drive_c/users/joseph/AppData/Roaming
+!/home/joseph/lustris/ea-app/drive_c/users/joseph/Documents
+
+# cache/environment data
+/home/joseph/cacheDir
+/home/joseph/CiscoSpark
+/home/joseph/go
+/home/joseph/iso
+/home/joseph/miniconda3
+/home/joseph/src
+/home/joseph/virtualbox_vms
+/home/joseph/vscode-cpptools
+/home/joseph/programming/gcc-cross-compiler
+
+
+########################
+# build/cache data
+
+# # js build
+node_modules
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.npm
+.next
+dist
+out
+.cache
+.yarn
+ 
+ 
+# fortran/c/c++ build
+cmake-build-*
+build
+*.o
+*.lo
+*.slo
+*.obj
+*.so
+*.dylib
+*.dll
+*.a
+*.la
+*.lai
+*.lib
+*.exe
+*.out
+CmakeCache.txt
+CmakeFiles
+CmakeScripts
+ 
+# vim
+*~
+
+# python
+*.pyc
+
+# git
+.git
+.git*
+
+# rust
+debug
+target
+Cargo.lock
+
+# latex
+*.aux
+*.lof
+*.lot
+*.fls
+*.out
+*.toc
+*.fmt
+*.fot
+*.cb
+*.cb2
+.*.lb
+*.bbl
+*.bcf
+*.blg
+*-blx.aux
+*-blx.bib
+*.run.xml
+*.texmk
+*.synctex
+*.synctex(busy)
+*.synctex.gz
+*.synctex.gz(busy)
+*.pdfsyncrun.xml
+*.nav
+*.pre
+*.snm
+*.vrb
+*lol
+
+
+
+
+# INCLUDE:
+# /home/joseph
+#     .config
+#     .minecraft
+# 
+# /etc
+# 
+# /root
+# 
+# /usr/local/bin
+# 
+# EXCLUDE:
+# 
+# .*
+# cacheDir
+# CiscoSpark
+# go
+# iso
+# miniconda3
+# src
+# virtualbox_vms
+#
