@@ -30,6 +30,13 @@ __prompt_command() {
     local red='\[\e[1;31m\]'
     local purple='\[\e[0;35m\]'
 
+    # Check if we are connected via SSH
+    if [ -n "$SSH_CLIENT" ] || [ -n "$SSH_TTY" ] || [ -n "$SSH_CONNECTION" ]; then
+        local host_info="\h "
+    else
+        local host_info=""
+    fi
+
     if [ $EUID == 0 ]; then
         local prompt_symbol="#"
         local prompt_color="${red}"
@@ -38,7 +45,7 @@ __prompt_command() {
         local prompt_color="${purple}"
     fi
 
-    PS1="${prompt_color}\W ${prompt_symbol} ${reset}"
+    PS1="${prompt_color}${host_info}\W ${prompt_symbol} ${reset}"
 
     if [ $EXIT != 0 ]; then
         PS1+="${red}[${EXIT}]${reset} "
