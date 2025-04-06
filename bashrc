@@ -26,13 +26,13 @@ __prompt_command() {
     PS1=""
 
     local reset='\[\e[0m\]' # Reset colors
-
     local red='\[\e[1;31m\]'
     local purple='\[\e[0;35m\]'
+    local bold='\[\e[1m\]'
 
     # Check if we are connected via SSH
     if [ -n "$SSH_CLIENT" ] || [ -n "$SSH_TTY" ] || [ -n "$SSH_CONNECTION" ]; then
-        local host_info="\h "
+        local host_info="${bold}\h "
     else
         local host_info=""
     fi
