@@ -1,0 +1,45 @@
+version: "1"
+
+default:
+  repository: "sftp:max-server:drive2/restic"
+  password-file: "max-server.key"
+  verbose: 2
+  run-before: 'sudo -u joseph DISPLAY=:0 DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/1000/bus notify-send "resticprofile" "$PROFILE_COMMAND started"'
+  run-after: 'sudo -u joseph DISPLAY=:0 DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/1000/bus notify-send "resticprofile" "$PROFILE_COMMAND completed"'
+  run-after-fail: 'sudo -u joseph DISPLAY=:0 DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/1000/bus notify-send -u critical "resticprofile" "$PROFILE_COMMAND failed: $ERROR_MESSAGE\n(check syslog)"'
+
+  backup:
+    source:
+      - "/etc"
+      - "/root"
+      - "/home/joseph"
+      - "/usr/local/bin"
+    exclude-file: "excludes.txt"
+    schedule: daily
+    schedule-permission: system
+    schedule-lock-mode: default
+    schedule-log: /var/log/restic.log
+    schedule-priority: background
+    schedule-ignore-on-battery-less-than: 10
+    schedule-after-network-online: true
+    schedule-lock-wait: 15m
+  
+  forget:
+    after-backup: true
+
+    host: true
+    prune: true
+
+    keep-daily: 7
+    keep-weekly: 4
+    keep-monthly: 6
+    keep-yearly: 5
+
+    schedule: daily
+    schedule-permission: system
+    schedule-lock-mode: default
+    schedule-log: /var/log/restic.log
+    schedule-priority: background
+    schedule-ignore-on-battery-less-than: 10
+    schedule-after-network-online: true
+    schedule-lock-wait: 1h

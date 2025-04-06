@@ -216,3 +216,4 @@ for_window [class=pavucontrol] floating enable
 for_window [class=Blueberry.py] floating enable
 for_window [class=Blueberry.py] floating enable
 for_window [class=com.cisco.secureclient.gui] floating enable
+for_window [class=control.exe] floating enable
