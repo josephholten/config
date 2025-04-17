@@ -13,3 +13,4 @@ nm-applet &         # network applet in systray
 autorandr --cycle   # detect screen configuration
 xss-lock xsecurelock &
 st -c "st-floating" &
+batsignal -b -i -e -D "bin/lowpower.out 'BATTERY CRITICAL'" &
