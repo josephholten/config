@@ -92,6 +92,7 @@ alias gap='git add . -p'
 alias grp='git restore . -p'
 alias wgup='sudo wg-quick up wg0'
 alias wgdown='sudo wg-quick down wg0'
+alias rclone='rclone --verbose --progress'
 
 of() {
     fd --hidden --type f | fzf --print0 | xargs -0 -I {} bash -c 'xdg-open "{}" & disown'
