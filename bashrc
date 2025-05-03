@@ -119,3 +119,21 @@ function open () {
     done
 }
 
+export KEYID=0x22C0152F739C743D
+
+gpgencrypt () {
+  output="${1}".$(date +%s).enc
+  gpg --encrypt --armor --output ${output} \
+    -r $KEYID "${1}" && echo "${1} -> ${output}"
+}
+
+gpgdecrypt () {
+  output=$(echo "${1}" | rev | cut -c16- | rev)
+  gpg --decrypt --output ${output} "${1}" && \
+    echo "${1} -> ${output}"
+}
+
+export GPG_TTY=$(tty)
+export SSH_AUTH_SOCK=$(gpgconf --list-dirs agent-ssh-socket)
+gpgconf --launch gpg-agent
+gpg-connect-agent updatestartuptty /bye > /dev/null
