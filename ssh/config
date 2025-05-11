@@ -1,0 +1,19 @@
+Host aeghpc10?
+    user jholten
+
+Host max-server
+    Hostname hirsch.ee
+
+Host mathphys
+    user joseph
+    Hostname shell.mathphys.stura.uni-heidelberg.de
+
+Host filmclub
+    Hostname studentischerfilmclub.de
+
+Host github.com-anni
+    HostName github.com
+    User git
+    IdentityFile ~/.ssh/id_anni
+    IdentitiesOnly yes
+
