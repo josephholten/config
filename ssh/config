@@ -1,18 +1,27 @@
-Host joseph-*
+Host joseph-server joseph-pi
     User joseph
+    ForwardAgent yes
 
-Host aeghpc10?
-    user jholten
+Host joseph-phone
+    User u0_a788
+    Port 8022
+    ForwardAgent yes
+
+Host joseph-tablet
+    User u0_a366
+    Port 8022
+    ForwardAgent yes
 
 Host max-server
+    User joseph
     Hostname hirsch.ee
-
-Host mathphys
-    user joseph
-    Hostname shell.mathphys.stura.uni-heidelberg.de
+    ForwardAgent yes
 
 Host filmclub
     Hostname studentischerfilmclub.de
+
+Host github.com
+    User git
 
 Host github.com-anni
     HostName github.com
