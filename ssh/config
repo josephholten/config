@@ -1,18 +1,19 @@
 Host joseph-*
     User joseph
 
-Host aeghpc10?
-    user jholten
-
 Host max-server
+    User joseph
     Hostname hirsch.ee
+    ForwardAgent yes
 
-Host mathphys
-    user joseph
-    Hostname shell.mathphys.stura.uni-heidelberg.de
+Host joseph-pi joseph-server
+    ForwardAgent yes
 
 Host filmclub
     Hostname studentischerfilmclub.de
+
+Host github.com
+    User git
 
 Host github.com-anni
     HostName github.com
