@@ -1,0 +1,11 @@
+[Interface]
+Address = 10.9.0.<IP>/24
+PrivateKey = <PRIVATE>
+DNS = 10.9.0.1
+
+# joseph-pi
+[Peer]
+PublicKey = <PUBLIC>
+AllowedIPs = 10.9.0.0/24
+Endpoint = <ENDPOINT>:51820
+PersistentKeepalive = 25
