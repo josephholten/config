@@ -4,10 +4,12 @@ Host joseph-server joseph-pi
 
 Host joseph-phone
     User u0_a788
+    Port 8022
     ForwardAgent yes
 
 Host joseph-tablet
     User u0_a366
+    Port 8022
     ForwardAgent yes
 
 Host max-server
