@@ -1,12 +1,18 @@
-Host joseph-*
+Host joseph-server joseph-pi
     User joseph
+    ForwardAgent yes
+
+Host joseph-phone
+    User u0_a788
+    ForwardAgent yes
+
+Host joseph-tablet
+    User u0_a366
+    ForwardAgent yes
 
 Host max-server
     User joseph
     Hostname hirsch.ee
-    ForwardAgent yes
-
-Host joseph-pi joseph-server
     ForwardAgent yes
 
 Host filmclub
