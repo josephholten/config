@@ -1,0 +1,41 @@
+set nocompatible
+set encoding=UTF-8
+
+" vundle setup
+" see :h vundle for more details or wiki for FAQ
+set rtp+=~/.vim/bundle/Vundle.vim
+call vundle#begin()
+    Plugin 'VundleVim/Vundle.vim'
+
+    Plugin 'junegunn/fzf'
+    Plugin 'junegunn/fzf.vim'
+call vundle#end()
+
+filetype plugin indent on
+syntax on
+set background=dark
+colorscheme quiet
+set hidden
+set number relativenumber
+set linebreak
+let &showbreak="↳ "
+set cpoptions+=n
+set cursorline
+set showmatch
+set showcmd
+set tabstop=2
+set shiftwidth=2
+set expandtab
+set smartindent
+set nrformats+=alpha
+
+autocmd TerminalWinOpen * set nonu norelativenumber
+
+" Leader
+map ö <leader>
+noremap <leader>t :bel term<cr>
+noremap <leader>T :vert rightb term<cr>
+command Vter vert rightb ter
+noremap <leader>f :GFiles<cr>
+noremap <leader>F :Lines<cr>
+
