@@ -1,3 +1,6 @@
+Host joseph-*
+    User joseph
+
 Host aeghpc10?
     user jholten
 
