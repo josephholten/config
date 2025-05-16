@@ -121,10 +121,6 @@ function open () {
 
 export KEYID=0x22C0152F739C743D
 
-wakeserver () {
-    ssh joseph-pi 'wakeonlan 7C:05:07:0D:FE:E5'
-}
-
 gpgencrypt () {
   output="${1}".$(date +%s).enc
   gpg --encrypt --armor --output ${output} \
@@ -137,7 +133,4 @@ gpgdecrypt () {
     echo "${1} -> ${output}"
 }
 
-export GPG_TTY=$(tty)
-export SSH_AUTH_SOCK=$(gpgconf --list-dirs agent-ssh-socket)
-gpgconf --launch gpg-agent
-gpg-connect-agent updatestartuptty /bye > /dev/null
+eval $(okc-ssh-agent)
