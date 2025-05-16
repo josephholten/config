@@ -121,6 +121,10 @@ function open () {
 
 export KEYID=0x22C0152F739C743D
 
+wakeserver () {
+    ssh joseph-pi 'wakeonlan 7C:05:07:0D:FE:E5'
+}
+
 gpgencrypt () {
   output="${1}".$(date +%s).enc
   gpg --encrypt --armor --output ${output} \
