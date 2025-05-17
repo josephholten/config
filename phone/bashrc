@@ -132,4 +132,8 @@ gpgdecrypt () {
     echo "${1} -> ${output}"
 }
 
-eval $(okc-ssh-agent)
+if [ -n "$SSH_CLIENT" ] || [ -n "$SSH_TTY" ] || [ -n "$SSH_CONNECTION" ]; then
+  echo "using forwarded ssh agent"
+else
+  eval $(okc-ssh-agent)
+fi
