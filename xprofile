@@ -10,7 +10,7 @@ xset r rate 400
 xbanish &           # no mouse when not needed
 /usr/bin/dunst &    # notification server
 nm-applet &         # network applet in systray
-autorandr --cycle   # detect screen configuration
+autorandr --load normal # detect screen configuration
 xss-lock xsecurelock &
 st -c "st-floating" &
 batsignal -b -i -e -D "bin/lowpower.out 'BATTERY CRITICAL'" &
