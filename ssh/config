@@ -2,6 +2,9 @@ Host joseph-server joseph-pi
     User joseph
     ForwardAgent yes
 
+Host joseph-server
+    LocalCommand ping -c1 joseph-server || ssh joseph-pi 'bin/wakeserver.sh'
+
 Host joseph-phone
     User u0_a788
     Port 8022
