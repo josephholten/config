@@ -13,6 +13,9 @@
 (setq epa-pinentry-mode 'loopback)
 (setq epg-gpg-program "gpg")
 
+(setq display-line-numbers-type 'relative)
+(global-display-line-numbers-mode)
+
 ;; Some functionality uses this to identify you, e.g. GPG configuration, email
 ;; clients, file templates and snippets. It is optional.
 ;; (setq user-full-name "John Doe"
