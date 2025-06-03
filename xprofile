@@ -14,3 +14,4 @@ autorandr --load normal # detect screen configuration
 xss-lock xsecurelock &
 st -c "st-floating" &
 batsignal -b -i -e -D "bin/lowpower.out 'BATTERY CRITICAL'" &
+emacs --daemon &
