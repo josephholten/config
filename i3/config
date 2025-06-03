@@ -218,3 +218,4 @@ for_window [class=com.cisco.secureclient.gui] floating enable
 for_window [class=control.exe] floating enable
 for_window [class=Nm-connection-editor] floating enable
 for_window [class=Sxiv] floating enable
+for_window [class=matplotlib] floating enable
