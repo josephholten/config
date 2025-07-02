@@ -32,3 +32,7 @@ Host github.com-anni
     IdentityFile ~/.ssh/id_anni
     IdentitiesOnly yes
 
+Host ianm-hpc ianm-chil
+    Hostname  %h.math.kit.edu
+    User np6630
+
