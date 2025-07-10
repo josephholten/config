@@ -1,0 +1,20 @@
+#!/bin/bash
+
+case "$1" in
+  de)
+    setxkbmap de
+    exit 0
+    ;;
+  de-nodeadkeys)
+    setxkbmap de -variant nodeadkeys
+    exit 0
+    ;;
+  da)
+    setxkbmap dk
+    exit 0
+    ;;
+esac
+
+echo "de-nodeadkeys"
+echo "de"
+echo "da"
