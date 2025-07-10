@@ -1,0 +1,4 @@
+jhosts:
+  hosts:
+    joseph-laptop2:
+      ansible_host: 10.9.0.5
