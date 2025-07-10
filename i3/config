@@ -70,6 +70,12 @@ bindsym $mod+w kill
 
 # start dmenu (a program launcher)
 bindsym $mod+space exec --no-startup-id rofi -show drun
+
+# start rofi password menu
+bindsym $mod+p  exec rofi-rbw
+
+bindsym $mod+b  exec rofi -show p -modi p:"~/bin/rofi-kblayout"
+
 # A more modern dmenu replacement is rofi:
 # bindcode $mod+40 exec "rofi -modi drun,run -show drun"
 # There also is i3-dmenu-desktop which only displays applications shipping a
@@ -166,7 +172,8 @@ bindsym $mod+Shift+c reload
 # restart i3 inplace (preserves your layout/session, can be used to upgrade i3)
 bindsym $mod+Shift+r restart
 # exit i3 (logs you out of your X session)
-bindsym $mod+Shift+e exec "i3-nagbar -t warning -m 'You pressed the exit shortcut. Do you really want to exit i3? This will end your X session.' -B 'Yes, exit i3' 'i3-msg exit'"
+#bindsym $mod+Shift+e exec "i3-nagbar -t warning -m 'You pressed the exit shortcut. Do you really want to exit i3? This will end your X session.' -B 'Yes, exit i3' 'i3-msg exit'"
+bindsym $mod+Shift+e exec rofi -show power-menu  -modi power-menu:./bin/rofi-power-menu
 
 # resize window (you can also use the mouse for that)
 mode "resize" {
@@ -219,3 +226,4 @@ for_window [class=control.exe] floating enable
 for_window [class=Nm-connection-editor] floating enable
 for_window [class=Sxiv] floating enable
 for_window [class=matplotlib] floating enable
+for_window [class=System-config-printer.py] floating enable
