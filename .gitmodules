@@ -1,6 +1,6 @@
 [submodule "rofi/rofi-power-menu"]
 	path = rofi/rofi-power-menu
-	url = https://github.com/jluttine/rofi-power-menu.git
+	url = https://github.com/macedigital/rofi-power-menu
 [submodule "st"]
 	path = st
 	url = github.com:josephholten/st
