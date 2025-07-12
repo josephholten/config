@@ -1,0 +1,11 @@
+#!/bin/sh
+
+# /etc/NetworkManager/dispatcher.d/09-timezone
+
+TZAPI="https://ipapi.co/timezone"
+
+case "$2" in
+    up)
+        timedatectl set-timezone "$(curl --fail ${TZAPI})"
+    ;;
+esac
