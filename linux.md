@@ -154,9 +154,6 @@ enable
 install wm
   pacman -S xorg xorg-xinit i3 i3status
     (selecting all and ttf-liberation)
-install terminal
-  git clone https://git.suckless.org/st
-  make && make install
 
 install yay
 login as non-root
@@ -181,3 +178,14 @@ install nvidia
   use
     options ... debug loglevel=7
   to get more information
+
+install
+    pacman -S pulseaudio pavucontrol
+
+install config files with sym links
+    install st from my fork
+
+
+TODO:
+  systemd-resolved!
+  wireguard
