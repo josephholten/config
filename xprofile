@@ -1,7 +1,8 @@
 # screen saver and screen off
 # TODO: this should go in an autorandr posthook
-xset s on
-xset s 60
+xset s off
+xset +dpms
+xset dpms 600 600 600
 
 # key repeat rate
 xset r rate 400
