@@ -23,7 +23,7 @@ Host max-server
 Host filmclub
     Hostname studentischerfilmclub.de
 
-Host github.com
+Host github.com gitlab.kit.edu
     User git
 
 Host github.com-anni
