@@ -18,7 +18,6 @@ shopt -s histappend
 shopt -s extglob
 shopt -s dotglob
 shopt -s globstar
-set -o vi
 
 
 PROMPT_COMMAND=__prompt_command
