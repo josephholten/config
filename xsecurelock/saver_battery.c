@@ -8,6 +8,8 @@
 #include <X11/Xft/Xft.h>
 #include <fontconfig/fontconfig.h>
 
+#define JASSERT_GOTO(COND, LBL, MSG...) do { if(!(COND)) { retcode = 1; fprintf(stderr, __FILE__ ": error: " MSG); sleep(1); goto LBL; }} while (0)
+
 // Function to read the battery percentage from the system
 int get_battery_percentage() {
     FILE *f;
@@ -34,9 +36,8 @@ int get_battery_percentage() {
     snprintf(capacity_path, sizeof(capacity_path), "%s/capacity", path);
     f = fopen(capacity_path, "r");
     if (f) {
-        if (fscanf(f, "%d", &capacity) != 1) {
+        if (fscanf(f, "%d", &capacity) != 1)
             capacity = -1;
-        }
         fclose(f);
     }
 
@@ -44,13 +45,8 @@ int get_battery_percentage() {
     snprintf(status_path, sizeof(status_path), "%s/status", path);
     f = fopen(status_path, "r");
     if (f) {
-        if (fscanf(f, "%s", status) == 1) {
-            if (strcmp(status, "Charging") == 0) {
-                // Return a positive number for charging
-                // Add a visual indicator in the UI
-                capacity = capacity > 0 ? capacity : 101;
-            }
-        }
+        if (fscanf(f, "%s", status) == 1 && strcmp(status, "Charging") == 0)
+            capacity += 100;
         fclose(f);
     }
 
@@ -64,8 +60,6 @@ int main(void) {
     unsigned int window_id;
     Window window;
     int screen;
-    int percentage;
-    char text[64];
     char* font_name;
 
     FcResult result;
@@ -79,94 +73,55 @@ int main(void) {
         .blue = 0xffff,
         .alpha = 0xffff
     };
+    GC gc;
+    XGCValues gc_values;
 
-    // Open a connection to the X server
     display = XOpenDisplay(NULL);
-    if (display == NULL) {
-        fprintf(stderr, "saver_battery: error: could not open display\n");
-        return 1;
-    }
+    JASSERT_GOTO(display != NULL, end, "could not open display\n");
 
-    // Get the window ID from the environment variable provided by xsecurelock
     window_id_str = getenv("XSCREENSAVER_WINDOW");
-    if (window_id_str == NULL) {
-        fprintf(stderr, "saver_battery: error: XSCREENSAVER_WINDOW environment variable not set\n");
-        XCloseDisplay(display);
-        return 1;
-    }
+    JASSERT_GOTO(window_id_str != NULL, end_xdisplay, "XSCREENSAVER_WINDOW env var not set\n");
 
-    // Convert the window ID from a string to a Window type
     window_id = strtoul(window_id_str, NULL, 10);
     window = (Window)window_id;
-
     screen = DefaultScreen(display);
 
-    if (!FcInit()) {
-        fprintf(stderr, "saver_battery: ERROR: could not initialze fontconfig\n");
-        XCloseDisplay(display);
-        return 1;
-    }
+    gc_values.foreground = BlackPixel(display, screen);
+    gc = XCreateGC(display, window, GCForeground, &gc_values);
 
-    // Get the font used by xsecurelock, or a fallback if not set
+    JASSERT_GOTO(FcInit(), end_xdisplay, "could not init fontconfig\n");
+
     font_name = getenv("XSECURELOCK_FONT");
     if (font_name == NULL || strcmp(font_name, "") == 0) {
         font_name = "monospace:size=10";
     }
 
-    // Create a fontconfig pattern from the font name
     pattern = FcNameParse((const FcChar8 *)font_name);
-    if (!pattern) {
-        fprintf(stderr, "saver_battery: error: could not parse font name '%s'\n", font_name);
-        XCloseDisplay(display);
-        FcFini();
-        return 1;
-    }
+    JASSERT_GOTO(pattern, end_fc, "could not parse font name '%s'\n", font_name);
 
-    // Find the best matching font and load it
     FcConfigSubstitute(NULL, pattern, FcMatchPattern);
     FcDefaultSubstitute(pattern);
     match_pattern = FcFontMatch(NULL, pattern, &result);
-    if (!match_pattern) {
-        fprintf(stderr, "saver_battery: error: could not find a matching font for '%s'\n", font_name);
-        FcPatternDestroy(pattern);
-        XCloseDisplay(display);
-        FcFini();
-        return 1;
-    }
+    JASSERT_GOTO(match_pattern, end_pattern, "could not find a matching pattern for '%s'\n", font_name);
 
     xft_font = XftFontOpenPattern(display, match_pattern);
-    if (!xft_font) {
-        fprintf(stderr, "saver_battery: error: could not open xft font\n");
-        FcPatternDestroy(pattern);
-        FcPatternDestroy(match_pattern);
-        XCloseDisplay(display);
-        FcFini();
-        return 1;
-    }
+    JASSERT_GOTO(xft_font, end_xftfont, "could not open xft font for '%s'\n", font_name);
 
-    FcPatternDestroy(pattern);
-
-    // Create an XftDraw object for drawing text
     xft_draw = XftDrawCreate(display, window, DefaultVisual(display, screen), DefaultColormap(display, screen));
-    if (!xft_draw) {
-        fprintf(stderr, "saver_battery: error: could not create XftDraw object\n");
-        XftFontClose(display, xft_font);
-        XCloseDisplay(display);
-        FcFini();
-        return 1;
-    }
+    JASSERT_GOTO(xft_draw, end_xftdraw, "could not create XftDraw object\n");
 
-    // Allocate an XftColor for the text
-    if (!XftColorAllocValue(display, DefaultVisual(display, screen), DefaultColormap(display, screen), &render_color, &xft_color)) {
-        fprintf(stderr, "saver_battery: error: could not allocate XftColor\n");
-        XftDrawDestroy(xft_draw);
-        XftFontClose(display, xft_font);
-        XCloseDisplay(display);
-        FcFini();
-        return 1;
-    }
+    JASSERT_GOTO(
+        XftColorAllocValue(
+            display,
+            DefaultVisual(display, screen),
+            DefaultColormap(display, screen),
+            &render_color,
+            &xft_color
+        ),
+        end_xftcolor,
+        "could not allocate XftColor object\n"
+    );
 
-    // Main event loop
     while (1) {
         int percentage = get_battery_percentage();
         char text[64];
@@ -177,7 +132,7 @@ int main(void) {
         int x, y;
 
         // Clear the window before drawing
-        XClearWindow(display, window);
+        XFillRectangle(display, window, gc, 0, 0, win_attrs.width, win_attrs.height);
         XGlyphInfo extents;
 
         if (percentage >= 0) {
@@ -194,12 +149,8 @@ int main(void) {
         x = (win_attrs.width - extents.width) / 2;
         y = (win_attrs.height + xft_font->ascent - xft_font->descent) * .9 ;
         XftDrawString8(xft_draw, &xft_color, xft_font, x, y, (const FcChar8 *)text, strlen(text));
-
-        // Flush the display to make sure the drawing is visible
         XFlush(display);
-
-        // Sleep for 5 seconds before updating the display
-        sleep(5);
+        sleep(1);
     }
 
     // TODO: move clean up to SIGTERM
@@ -210,6 +161,9 @@ end_xftdraw:
     XftDrawDestroy(xft_draw);
 end_xftfont:
     XftFontClose(display, xft_font);
+end_pattern:
+    FcPatternDestroy(match_pattern);
+    FcPatternDestroy(pattern);
 end_fc:
     FcFini();
 end_xdisplay:
