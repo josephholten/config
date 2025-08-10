@@ -3,12 +3,20 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <signal.h>
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 #include <X11/Xft/Xft.h>
 #include <fontconfig/fontconfig.h>
 
 #define JASSERT_GOTO(COND, LBL, MSG...) do { if(!(COND)) { retcode = 1; fprintf(stderr, __FILE__ ": error: " MSG); sleep(1); goto LBL; }} while (0)
+
+volatile sig_atomic_t g_running = 1;
+
+void cleanup(int signum) {
+    fprintf(stderr, "CLEAN\n");
+    g_running = 0;
+}
 
 // Function to read the battery percentage from the system
 int get_battery_percentage() {
@@ -76,6 +84,8 @@ int main(void) {
     GC gc;
     XGCValues gc_values;
 
+    signal(SIGTERM, cleanup);
+
     display = XOpenDisplay(NULL);
     JASSERT_GOTO(display != NULL, end, "could not open display\n");
 
@@ -122,7 +132,7 @@ int main(void) {
         "could not allocate XftColor object\n"
     );
 
-    while (1) {
+    while (g_running) {
         int percentage = get_battery_percentage();
         char text[64];
 
@@ -153,15 +163,15 @@ int main(void) {
         sleep(1);
     }
 
-    // TODO: move clean up to SIGTERM
-
 end:
-    XftColorFree(display, DefaultVisual(display, screen), DefaultColormap(display, screen), &xft_color);
-    XftDrawDestroy(xft_draw);
-    XftFontClose(display, xft_font);
-    FcPatternDestroy(match_pattern);
-    FcPatternDestroy(pattern);
-    FcFini();
-    XCloseDisplay(display);
+    if (display) {
+        if (xft_color.pixel) XftColorFree(display, DefaultVisual(display, screen), DefaultColormap(display, screen), &xft_color);
+        if (xft_font) XftFontClose(display, xft_font);
+        if (match_pattern) FcPatternDestroy(match_pattern);
+        if (pattern) FcPatternDestroy(pattern);
+        FcFini();
+        XFreeGC(display, gc);
+        XCloseDisplay(display);
+    }
     return retcode;
 }
