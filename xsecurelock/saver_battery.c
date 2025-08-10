@@ -80,7 +80,7 @@ int main(void) {
     JASSERT_GOTO(display != NULL, end, "could not open display\n");
 
     window_id_str = getenv("XSCREENSAVER_WINDOW");
-    JASSERT_GOTO(window_id_str != NULL, end_xdisplay, "XSCREENSAVER_WINDOW env var not set\n");
+    JASSERT_GOTO(window_id_str != NULL, end, "XSCREENSAVER_WINDOW env var not set\n");
 
     window_id = strtoul(window_id_str, NULL, 10);
     window = (Window)window_id;
@@ -89,7 +89,7 @@ int main(void) {
     gc_values.foreground = BlackPixel(display, screen);
     gc = XCreateGC(display, window, GCForeground, &gc_values);
 
-    JASSERT_GOTO(FcInit(), end_xdisplay, "could not init fontconfig\n");
+    JASSERT_GOTO(FcInit(), end, "could not init fontconfig\n");
 
     font_name = getenv("XSECURELOCK_FONT");
     if (font_name == NULL || strcmp(font_name, "") == 0) {
@@ -97,18 +97,18 @@ int main(void) {
     }
 
     pattern = FcNameParse((const FcChar8 *)font_name);
-    JASSERT_GOTO(pattern, end_fc, "could not parse font name '%s'\n", font_name);
+    JASSERT_GOTO(pattern, end, "could not parse font name '%s'\n", font_name);
 
     FcConfigSubstitute(NULL, pattern, FcMatchPattern);
     FcDefaultSubstitute(pattern);
     match_pattern = FcFontMatch(NULL, pattern, &result);
-    JASSERT_GOTO(match_pattern, end_pattern, "could not find a matching pattern for '%s'\n", font_name);
+    JASSERT_GOTO(match_pattern, end, "could not find a matching pattern for '%s'\n", font_name);
 
     xft_font = XftFontOpenPattern(display, match_pattern);
-    JASSERT_GOTO(xft_font, end_xftfont, "could not open xft font for '%s'\n", font_name);
+    JASSERT_GOTO(xft_font, end, "could not open xft font for '%s'\n", font_name);
 
     xft_draw = XftDrawCreate(display, window, DefaultVisual(display, screen), DefaultColormap(display, screen));
-    JASSERT_GOTO(xft_draw, end_xftdraw, "could not create XftDraw object\n");
+    JASSERT_GOTO(xft_draw, end, "could not create XftDraw object\n");
 
     JASSERT_GOTO(
         XftColorAllocValue(
@@ -118,7 +118,7 @@ int main(void) {
             &render_color,
             &xft_color
         ),
-        end_xftcolor,
+        end,
         "could not allocate XftColor object\n"
     );
 
@@ -155,19 +155,13 @@ int main(void) {
 
     // TODO: move clean up to SIGTERM
 
-end_xftcolor:
+end:
     XftColorFree(display, DefaultVisual(display, screen), DefaultColormap(display, screen), &xft_color);
-end_xftdraw:
     XftDrawDestroy(xft_draw);
-end_xftfont:
     XftFontClose(display, xft_font);
-end_pattern:
     FcPatternDestroy(match_pattern);
     FcPatternDestroy(pattern);
-end_fc:
     FcFini();
-end_xdisplay:
     XCloseDisplay(display);
-end:
     return retcode;
 }
