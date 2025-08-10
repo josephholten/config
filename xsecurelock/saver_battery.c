@@ -1,3 +1,4 @@
+#include <X11/extensions/Xrender.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -59,13 +60,25 @@ int get_battery_percentage() {
 int main(void) {
     int retcode = 0;
     Display *display;
+    char* window_id_str;
+    unsigned int window_id;
     Window window;
     int screen;
+    int percentage;
+    char text[64];
+    char* font_name;
 
-    FcPattern *pattern;
+    FcResult result;
+    FcPattern *pattern, *match_pattern;
     XftFont *xft_font;
     XftDraw *xft_draw;
     XftColor xft_color;
+    XRenderColor render_color = {
+        .red = 0xffff,
+        .green = 0xffff,
+        .blue = 0xffff,
+        .alpha = 0xffff
+    };
 
     // Open a connection to the X server
     display = XOpenDisplay(NULL);
@@ -75,15 +88,15 @@ int main(void) {
     }
 
     // Get the window ID from the environment variable provided by xsecurelock
-    char *window_id_str = getenv("XSCREENSAVER_WINDOW");
+    window_id_str = getenv("XSCREENSAVER_WINDOW");
     if (window_id_str == NULL) {
-        fprintf(stderr, "Error: XSCREENSAVER_WINDOW environment variable not set.\n");
+        fprintf(stderr, "saver_battery: error: XSCREENSAVER_WINDOW environment variable not set\n");
         XCloseDisplay(display);
         return 1;
     }
 
     // Convert the window ID from a string to a Window type
-    unsigned long window_id = strtoul(window_id_str, NULL, 10);
+    window_id = strtoul(window_id_str, NULL, 10);
     window = (Window)window_id;
 
     screen = DefaultScreen(display);
@@ -95,7 +108,7 @@ int main(void) {
     }
 
     // Get the font used by xsecurelock, or a fallback if not set
-    char *font_name = getenv("XSECURELOCK_FONT");
+    font_name = getenv("XSECURELOCK_FONT");
     if (font_name == NULL || strcmp(font_name, "") == 0) {
         font_name = "monospace:size=10";
     }
@@ -112,8 +125,7 @@ int main(void) {
     // Find the best matching font and load it
     FcConfigSubstitute(NULL, pattern, FcMatchPattern);
     FcDefaultSubstitute(pattern);
-    FcResult result;
-    FcPattern *match_pattern = FcFontMatch(NULL, pattern, &result);
+    match_pattern = FcFontMatch(NULL, pattern, &result);
     if (!match_pattern) {
         fprintf(stderr, "saver_battery: error: could not find a matching font for '%s'\n", font_name);
         FcPatternDestroy(pattern);
@@ -145,12 +157,6 @@ int main(void) {
     }
 
     // Allocate an XftColor for the text
-    XRenderColor render_color = {
-        .red = 0xffff,
-        .green = 0xffff,
-        .blue = 0xffff,
-        .alpha = 0xffff
-    };
     if (!XftColorAllocValue(display, DefaultVisual(display, screen), DefaultColormap(display, screen), &render_color, &xft_color)) {
         fprintf(stderr, "saver_battery: error: could not allocate XftColor\n");
         XftDrawDestroy(xft_draw);
