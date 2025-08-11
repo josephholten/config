@@ -11,3 +11,6 @@ saver_battery: saver_battery.c
 
 install: saver_battery
 	cp saver_battery $(HOME)/bin
+
+clean:
+	rm -rf saver_battery
