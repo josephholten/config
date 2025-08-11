@@ -8,3 +8,6 @@ CFLAGS=$(shell pkg-config --cflags --libs x11 xft fontconfig)
 
 saver_battery: saver_battery.c
 	$(CC) $(CFLAGS) saver_battery.c -o saver_battery
+
+install: saver_battery
+	cp saver_battery $(HOME)/bin
