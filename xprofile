@@ -14,5 +14,5 @@ nm-applet &         # network applet in systray
 autorandr --load normal # detect screen configuration
 xss-lock -l env XSECURELOCK_SHOW_DATETIME=1 XSECURELOCK_DATETIME_FORMAT=%Y-%m-%dT%H:%M:%S%z XSECURELOCK_SAVER=$HOME/bin/saver_battery XSECURELOCK_FONT="monospace:size=16" xsecurelock &
 st -c "st-floating" &
-batsignal -b -i -e -D "bin/lowpower.out 'BATTERY CRITICAL'" &
+batsignal -b -i -e -d 4 -D $HOME/bin/fullscreen_warning
 emacs --daemon &
