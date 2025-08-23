@@ -19,6 +19,7 @@
        ;;chinese
        ;;japanese
        ;;layout            ; auie,ctsrnm is the superior home row
+       ;(disable-packages! smartparens)
 
        :completion
        ;;company           ; the ultimate code completion backend
@@ -146,7 +147,7 @@
        javascript        ; all(hope(abandon(ye(who(enter(here))))))
        ;;julia             ; a better, faster MATLAB
        ;;kotlin            ; a better, slicker Java(Script)
-       (latex +cdlatex +fold +latexmk +lsp)            ; writing papers in Emacs has never been so fun
+       ;(latex +latexmk +lsp)            ; writing papers in Emacs has never been so fun
        ;;lean              ; for folks with too much to prove
        ;;ledger            ; be audit you can be
        ;;lua               ; one-based indices? one-based indices
@@ -192,4 +193,4 @@
 
        :config
        ;;literate
-       (default +bindings +smartparens))
+       (default +bindings))

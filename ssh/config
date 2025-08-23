@@ -36,7 +36,7 @@ Host ianm-hpc ianm-chil
     Hostname  %h.math.kit.edu
     User np6630
 
-Host pde??
+Host pde?? pde-fs
     Hostname %h.cluster.math.kit.edu
     User np6630
     ForwardAgent yes

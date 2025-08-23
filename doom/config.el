@@ -8,11 +8,18 @@
 
 ;; make key 'S' in evil normal mode behave like in vim -> maybe does other things as well
 (remove-hook 'doom-first-input-hook #'evil-snipe-mode)
+(remove-hook 'doom-first-buffer-hook #'smartparens-global-mode)
+(setq desktop-restore-forces-onscreen nil)
+(after! tex-mode
+        (setq tex-fontify-script nil)
+        (setq tex-fontify-sectioning nil)
+        (set-face-attribute 'tex-math nil :inherit 'default)
+)
 
 (setq user-full-name "Joseph Holten"
       user-mail-address "joseph@holten.com")
 
-(setq doom-theme 'doom-homage-black)
+(load-theme 'tao-yin t)
 (setq display-line-numbers-type 'relative)
 (global-display-line-numbers-mode)
 (setq org-directory "~/org/")
