@@ -80,6 +80,21 @@
   (define-fringe-bitmap 'git-gutter-fr:deleted  [255 255] nil nil 'bottom)
 )
 
+(use-package projectile
+  :ensure t
+  :diminish projectile-mode
+  :init
+  (projectile-mode 1)
+  :general
+  (leader-def 'normal
+    "p" 'projectile-command-map
+  )
+  :config
+  (setq projectile-project-search-path '("~/phd" "~/programming" "~/src" "~/config"))
+  (setq projectile-indexing-method 'alien)
+  (setq projectile-enable-caching 'persistent)
+)
+
 (use-package savehist
   :ensure t
   :init
@@ -119,7 +134,7 @@
  '(custom-safe-themes '(default))
  '(package-selected-packages
    '(consult evil evil-collection general git-gutter git-gutter-fringe
-             magit)))
+             magit projectile)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
