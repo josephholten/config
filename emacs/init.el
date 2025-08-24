@@ -12,10 +12,6 @@
 (setq-default indent-tabs-mode nil)
 (setq-default tab-width 2)
 (context-menu-mode t)
-(enable-recursive-minibuffers t)
-(read-extended-command-predicate #'command-completion-default-include-p)
-(minibuffer-prompt-properties
-'(read-only t cursor-intangible t face minibuffer-prompt))
 
 (unless (package-installed-p 'use-package)
   (package-refresh-contents)

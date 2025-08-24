@@ -45,6 +45,14 @@
    ((t (:foreground "#f5c77e"))))
  '(git-gutter-fr:deleted
    ((t (:foreground "#ffa590"))))
+
+ '(minibuffer-prompt
+   ((t ())))
+ '(vertico-current
+   ((t ())))
+
+ '(orderless-match-face-0
+   ((t (:weight bold))))
 )
 
 (provide-theme 'dark-monochrome)
