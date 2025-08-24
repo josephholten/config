@@ -39,6 +39,12 @@
   (general-create-definer leader-def
     :prefix "SPC"
   )
+  (leader-def 'normal
+    "h r" '(lambda ()
+      (interactive)
+      (load-file user-init-file)
+      (message "Configuration reloaded from %s" user-init-file))
+  )
 )
 
 (use-package magit
