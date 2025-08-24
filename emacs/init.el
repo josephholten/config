@@ -54,6 +54,7 @@
   (leader-def 'normal
     "h" '(:ignore t :which-key "help - emacs config")
     "hr" 'load-init-file
+    "hc" 'describe-char
   )
 )
 

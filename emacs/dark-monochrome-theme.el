@@ -19,6 +19,8 @@
    ((t ())))
  '(font-lock-variable-name-face
    ((t ())))
+ '(font-lock-function-name-face
+   ((t ())))
 
  '(font-lock-comment-face
    ((t (:foreground "#AAAAAA" :slant italic))))
