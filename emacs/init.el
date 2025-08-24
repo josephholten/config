@@ -32,14 +32,24 @@
   :config
   (evil-collection-init '(magit))
 )
-(use-package magit)
+(use-package general
+  :ensure t
+  :config
+  (general-evil-setup)
+)
+
+(use-package magit
+  :after general
+  :general
+  (general-def 'normal
+    "SPC g" 'magit-status
+  )
+)
 (use-package git-gutter
   :ensure t
-  :hook (prog-mode . git-gutter-mode))
-; TODO: customize gutter look
-; TODO: somehow get some keybindings
+  :hook (prog-mode . git-gutter-mode)
+)
 
-; -------------------------------------
 
 (add-to-list 'custom-theme-load-path "~/.config/emacs/")
 (load-theme 'dark-monochrome t)
@@ -55,7 +65,7 @@
      "0c8d0a6e0e74f09aac251e0d1e851bc0fc3db06c4f2443112896536c7894e1de"
      "501f628f27e11ee89cb5dc80e52fce67262cf071f74ed5efca1aeadd10322afe"
      default))
- '(package-selected-packages '(evil evil-collection git-gutter magit)))
+ '(package-selected-packages '(evil evil-collection general git-gutter magit)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
