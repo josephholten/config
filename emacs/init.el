@@ -71,11 +71,11 @@
   (leader-def 'normal
     "g" '(:ignore t :which-key "(ma)git")
     "gg" 'magit-status
+    "gi" 'magit-init
   )
 )
 (use-package git-gutter
   :ensure t
-  :hook (prog-mode . git-gutter-mode)
 )
 (use-package git-gutter-fringe
   :after git-gutter
