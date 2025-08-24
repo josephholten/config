@@ -36,13 +36,16 @@
   :ensure t
   :config
   (general-evil-setup)
+  (general-create-definer leader-def
+    :prefix "SPC"
+  )
 )
 
 (use-package magit
   :after general
   :general
-  (general-def 'normal
-    "SPC g" 'magit-status
+  (leader-def 'normal
+    "g" 'magit-status
   )
 )
 (use-package git-gutter
