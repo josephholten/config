@@ -1,4 +1,4 @@
-(deftheme dark-monochrome "A dark and stylish theme created from scratch.")
+(deftheme dark-monochrome "A dark and monochrome theme created from scratch.")
 
 (custom-theme-set-faces
  'dark-monochrome
@@ -32,6 +32,8 @@
    ((t (:foreground "#000000"
         :background "#EEEEEE"))))
 
+ '(fringe
+   ((t (:background "#000000"))))
 )
 
 (provide-theme 'dark-monochrome)
