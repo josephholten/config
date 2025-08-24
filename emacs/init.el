@@ -7,6 +7,7 @@
 (menu-bar-mode -1)
 (tool-bar-mode -1)
 (scroll-bar-mode -1)
+(set-fringe-mode 0)
 (setq inhibit-startup-message t)
 (global-display-line-numbers-mode)
 (setq-default indent-tabs-mode nil)
