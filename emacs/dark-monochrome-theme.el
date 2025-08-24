@@ -28,10 +28,9 @@
    ((t (:foreground "#000000"
         :background "#FFFFFF"))))
 
- ;; 3. The REGION face: Same as default, but slightly darker background
  '(region
    ((t (:foreground "#000000"
-        :background "#EEEEEE")))) ; Use a slightly darker gray like #111111
+        :background "#EEEEEE"))))
 
 )
 
