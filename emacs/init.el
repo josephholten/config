@@ -127,6 +127,9 @@
   )
 )
 
+(use-package vterm
+  :ensure t
+)
 ; ------ THEME ----------
 
 (add-to-list 'custom-theme-load-path "~/.config/emacs/")
@@ -140,7 +143,7 @@
  '(custom-safe-themes '(default))
  '(package-selected-packages
    '(consult evil evil-collection general git-gutter git-gutter-fringe
-             magit projectile)))
+             magit projectile vterm)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
