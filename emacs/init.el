@@ -135,11 +135,23 @@
   (vterm-kill-buffer-on-exit t)
   :general
   (general-def 'normal 'vterm-mode-map
-    "o t" vterm-other-window
     "p" 'vterm-yank
     "C-v" 'vterm-yank-primary
   )
+  (leader-def 'normal
+    "o t" 'vterm-other-window
+  )
 )
+
+;; In your init.el
+(use-package doom-modeline
+  :ensure t
+  :init (doom-modeline-mode 1)
+  :config
+  (setq doom-modeline-buffer-file-name-style 'file-name)
+  (setq doom-modeline-icon nil)
+)
+
 ; ------ THEME ----------
 
 (add-to-list 'custom-theme-load-path "~/.config/emacs/")
@@ -152,8 +164,8 @@
  ;; If there is more than one, they won't work right.
  '(custom-safe-themes '(default))
  '(package-selected-packages
-   '(consult evil evil-collection general git-gutter git-gutter-fringe
-             magit projectile vterm)))
+   '(consult doom-modeline evil evil-collection general git-gutter
+             git-gutter-fringe magit projectile vterm)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.

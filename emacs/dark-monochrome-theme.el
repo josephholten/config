@@ -55,6 +55,14 @@
 
  '(orderless-match-face-0
    ((t (:weight bold))))
+ '(doom-modeline-buffer-modified
+   ((t ())))
+ '(doom-modeline-vcs-default
+   ((t ())))
+ '(doom-modeline-evil-normal-state
+   ((t ())))
+ '(doom-modeline-info
+   ((t ())))
 )
 
 (provide-theme 'dark-monochrome)
