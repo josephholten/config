@@ -129,6 +129,14 @@
 
 (use-package vterm
   :ensure t
+  :custom
+  (vterm-kill-buffer-on-exit t)
+  :general
+  (general-def 'normal 'vterm-mode-map
+    "o t" vterm-other-window
+    "p" 'vterm-yank
+    "C-v" 'vterm-yank-primary
+  )
 )
 ; ------ THEME ----------
 
