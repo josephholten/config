@@ -38,6 +38,8 @@
 
  '(fringe
    ((t (:background "#000000"))))
+ '(hl-line
+   ((t (:background "#222222"))))
 
  '(git-gutter-fr:added
    ((t (:foreground "#acd8a7"))))
@@ -49,7 +51,7 @@
  '(minibuffer-prompt
    ((t ())))
  '(vertico-current
-   ((t ())))
+   ((t (:background "#222222"))))
 
  '(orderless-match-face-0
    ((t (:weight bold))))

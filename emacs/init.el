@@ -9,6 +9,7 @@
 (scroll-bar-mode -1)
 (setq inhibit-startup-message t)
 (global-display-line-numbers-mode)
+(global-hl-line-mode 1)
 (setq-default indent-tabs-mode nil)
 (setq-default tab-width 2)
 (context-menu-mode t)
