@@ -57,6 +57,11 @@
     "h" '(:ignore t :which-key "help - emacs config")
     "hr" 'load-init-file
     "hc" 'describe-char
+
+    "w" '(:ignore t :which-key "window")
+    "wq" 'evil-quit
+    "ws" 'evil-window-split
+    "wv" 'evil-window-vsplit
   )
 )
 
