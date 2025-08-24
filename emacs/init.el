@@ -11,6 +11,11 @@
 (global-display-line-numbers-mode)
 (setq-default indent-tabs-mode nil)
 (setq-default tab-width 2)
+(context-menu-mode t)
+(enable-recursive-minibuffers t)
+(read-extended-command-predicate #'command-completion-default-include-p)
+(minibuffer-prompt-properties
+'(read-only t cursor-intangible t face minibuffer-prompt))
 
 (unless (package-installed-p 'use-package)
   (package-refresh-contents)
@@ -70,7 +75,6 @@
   :ensure t
   :hook (prog-mode . git-gutter-mode)
 )
-
 (use-package git-gutter-fringe
   :after git-gutter
   :ensure t
@@ -80,6 +84,34 @@
   (define-fringe-bitmap 'git-gutter-fr:deleted  [255 255] nil nil 'bottom)
 )
 
+(use-package savehist
+  :ensure t
+  :init
+  (savehist-mode)
+)
+(use-package orderless
+  :ensure t
+  :custom
+  (completion-styles '(orderless basic))
+  (completion-category-defaults nil)
+  (completion-category-overrides '((file (styles partial-completion))))
+)
+(use-package vertico
+  :ensure t
+  :init
+  (vertico-mode)
+)
+(use-package consult
+  :after general
+  :ensure t
+  :general
+  (leader-def 'normal
+    "<" 'consult-buffer
+  )
+)
+
+; ------ THEME ----------
+
 (add-to-list 'custom-theme-load-path "~/.config/emacs/")
 (load-theme 'dark-monochrome t)
 
@@ -88,7 +120,13 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(custom-safe-themes
-   '(default))
+ '(custom-safe-themes '(default))
  '(package-selected-packages
-   '(evil evil-collection general git-gutter git-gutter-fringe magit)))
+   '(consult evil evil-collection general git-gutter git-gutter-fringe
+             magit)))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
