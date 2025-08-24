@@ -19,6 +19,13 @@
 (require 'use-package)
 (setq use-package-always-ensure t)
 
+; ------------- FUNCS ------------------
+(defun load-init-file ()
+  (interactive)
+  (load-file user-init-file)
+  (message "Configuration reloaded from %s" user-init-file)
+)
+
 ; ------------ PACKAGES ----------------
 (use-package evil
   :ensure t
@@ -32,6 +39,11 @@
   :config
   (evil-collection-init '(magit))
 )
+(use-package which-key
+  :ensure t
+  :config
+  (which-key-mode)
+)
 (use-package general
   :ensure t
   :config
@@ -40,10 +52,8 @@
     :prefix "SPC"
   )
   (leader-def 'normal
-    "h r" '(lambda ()
-      (interactive)
-      (load-file user-init-file)
-      (message "Configuration reloaded from %s" user-init-file))
+    "h" '(:ignore t :which-key "help - emacs config")
+    "hr" 'load-init-file
   )
 )
 
@@ -51,7 +61,8 @@
   :after general
   :general
   (leader-def 'normal
-    "g" 'magit-status
+    "g" '(:ignore t :which-key "(ma)git")
+    "gg" 'magit-status
   )
 )
 (use-package git-gutter
