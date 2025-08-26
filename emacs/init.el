@@ -143,7 +143,6 @@
   )
 )
 
-;; In your init.el
 (use-package doom-modeline
   :ensure t
   :init (doom-modeline-mode 1)
@@ -151,6 +150,40 @@
   (setq doom-modeline-buffer-file-name-style 'file-name)
   (setq doom-modeline-icon nil)
 )
+
+(use-package flycheck
+  :init
+  (global-flycheck-mode 1)
+  :config
+  (setq flycheck-check-syntax-automatically '(mode-enabled save))
+)
+
+(use-package cmake-mode
+  :ensure t)
+
+(use-package lsp-ui
+  :ensure t)
+
+(use-package lsp-mode
+  :commands (lsp lsp-deferred)
+  :hook ((c-mode python-mode) . lsp-deferred)
+  :config
+  (setq lsp-enable-symbol-highlighting nil)
+  (setq lsp-lens-enable nil)
+  (setq lsp-ui-doc-position 'bottom)
+  (setq lsp-ui-doc-show-with-mouse nil)
+  (setq flycheck-idle-change-delay 1)
+  (setq lsp-ui-sideline-enable nil)
+  (setq lsp-modeline-code-actions-enable nil)
+  (setq lsp-modeline-diagnostics-enable nil)
+)
+
+(use-package ultra-scroll
+  :init
+  (setq scroll-conservatively 0
+        scroll-margin 0)
+  :config
+  (ultra-scroll-mode 1))
 
 ; ------ THEME ----------
 
@@ -164,8 +197,9 @@
  ;; If there is more than one, they won't work right.
  '(custom-safe-themes '(default))
  '(package-selected-packages
-   '(consult doom-modeline evil evil-collection general git-gutter
-             git-gutter-fringe magit projectile vterm)))
+   '(cmake-mode consult doom-modeline evil evil-collection flycheck
+                general git-gutter git-gutter-fringe lsp-mode lsp-ui
+                magit projectile ultra-scroll vterm)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.

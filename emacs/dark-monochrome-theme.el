@@ -63,7 +63,10 @@
    ((t ())))
  '(doom-modeline-info
    ((t ())))
+ '(doom-modeline-urgent
+   ((t (:foreground "#df2c14"))))
+ '(doom-modeline-warning
+   ((t (:foreground "#dc6601"))))
 )
 
 (provide-theme 'dark-monochrome)
-
