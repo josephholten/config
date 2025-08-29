@@ -137,6 +137,13 @@
   (general-def 'normal 'vterm-mode-map
     "p" 'vterm-yank
     "C-v" 'vterm-yank-primary
+    "C-u" 'vterm--self-insert
+    "C-y" 'vterm--self-insert
+  )
+  (general-def 'insert 'vterm-mode-map
+    "C-v" 'vterm-yank-primary
+    "C-u" 'vterm--self-insert
+    "C-y" 'vterm--self-insert
   )
   (leader-def 'normal
     "o t" 'vterm-other-window
@@ -177,13 +184,6 @@
   (setq lsp-modeline-code-actions-enable nil)
   (setq lsp-modeline-diagnostics-enable nil)
 )
-
-(use-package ultra-scroll
-  :init
-  (setq scroll-conservatively 0
-        scroll-margin 0)
-  :config
-  (ultra-scroll-mode 1))
 
 ; ------ THEME ----------
 
