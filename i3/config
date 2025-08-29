@@ -229,4 +229,5 @@ for_window [class=control.exe] floating enable
 for_window [class=Nm-connection-editor] floating enable
 for_window [class=Sxiv] floating enable
 for_window [class=matplotlib] floating enable
+for_window [class=Matplotlib] floating enable
 for_window [class=System-config-printer.py] floating enable
