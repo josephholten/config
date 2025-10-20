@@ -13,8 +13,13 @@ case "$1" in
     setxkbmap dk
     exit 0
     ;;
+  us)
+    setxkbmap us
+    exit 0
+    ;;
 esac
 
 echo "de-nodeadkeys"
 echo "de"
 echo "da"
+echo "us"

@@ -21,6 +21,12 @@
    ((t ())))
  '(font-lock-function-name-face
    ((t ())))
+ '(font-lock-function-name-face
+   ((t ())))
+ '(superscript
+   ((t ())))
+ '(subscript
+   ((t ())))
 
  '(font-lock-comment-face
    ((t (:foreground "#AAAAAA" :slant italic))))

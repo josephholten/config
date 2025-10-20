@@ -13,6 +13,7 @@
 (setq-default indent-tabs-mode nil)
 (setq-default tab-width 2)
 (context-menu-mode t)
+(setq tex-fontify-script nil)
 
 (unless (package-installed-p 'use-package)
   (package-refresh-contents)
@@ -136,14 +137,13 @@
   :general
   (general-def 'normal 'vterm-mode-map
     "p" 'vterm-yank
-    "C-v" 'vterm-yank-primary
-    "C-u" 'vterm--self-insert
-    "C-y" 'vterm--self-insert
   )
   (general-def 'insert 'vterm-mode-map
     "C-v" 'vterm-yank-primary
     "C-u" 'vterm--self-insert
     "C-y" 'vterm--self-insert
+    "C-d" 'vterm--self-insert
+    "C-r" 'vterm--self-insert
   )
   (leader-def 'normal
     "o t" 'vterm-other-window
@@ -160,7 +160,8 @@
 
 (use-package flycheck
   :init
-  (global-flycheck-mode 1)
+  ;(setq global-flycheck-mode -1)
+  ;:hook ((python-mode c++-mode c-mode) . flycheck-mode)
   :config
   (setq flycheck-check-syntax-automatically '(mode-enabled save))
 )
