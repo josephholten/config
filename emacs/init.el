@@ -40,7 +40,7 @@
   :after evil
   :ensure t
   :config
-  (evil-collection-init '(magit))
+  (evil-collection-init '(magit dired))
 )
 (use-package which-key
   :ensure t
@@ -104,6 +104,7 @@
   (setq projectile-project-search-path '("~/phd" "~/programming" "~/src" "~/config"))
   (setq projectile-indexing-method 'alien)
   (setq projectile-enable-caching 'persistent)
+  (setq projectile-switch-project-action 'projectile-dired)
 )
 
 (use-package savehist
