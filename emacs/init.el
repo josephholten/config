@@ -98,6 +98,8 @@
   (leader-def 'normal
     "p" 'projectile-command-map
   )
+  (:keymaps 'projectile-command-map
+   "x v" 'projectile-run-vterm-other-window)
   :config
   (setq projectile-project-search-path '("~/phd" "~/programming" "~/src" "~/config"))
   (setq projectile-indexing-method 'alien)
@@ -144,9 +146,6 @@
     "C-y" 'vterm--self-insert
     "C-d" 'vterm--self-insert
     "C-r" 'vterm--self-insert
-  )
-  (leader-def 'normal
-    "o t" 'vterm-other-window
   )
 )
 
