@@ -39,6 +39,11 @@
                   (format "%d:0:%s" line-number tex-file)
                   pdf-file)))
 
+(defun consult-projectile-ripgrep ()
+  "Search in current project with consult-ripgrep."
+  (interactive)
+  (consult-ripgrep (projectile-project-root)))
+
 ; ------------ PACKAGES ----------------
 (use-package evil
   :ensure t
@@ -111,7 +116,9 @@
     "p" 'projectile-command-map
   )
   (:keymaps 'projectile-command-map
-   "x v" 'projectile-run-vterm-other-window)
+    "x v" 'projectile-run-vterm-other-window
+    "s" 'consult-projectile-ripgrep
+  )
   :config
   (setq projectile-project-search-path '("~/phd" "~/programming" "~/src" "~/config"))
   (setq projectile-indexing-method 'alien)
@@ -210,9 +217,10 @@
  ;; If there is more than one, they won't work right.
  '(custom-safe-themes '(default))
  '(package-selected-packages
-   '(cmake-mode consult doom-modeline evil evil-collection flycheck
-                general git-gutter git-gutter-fringe lsp-mode lsp-ui
-                magit projectile ultra-scroll vterm)))
+   '(cmake-mode consult consult-projectile doom-modeline evil
+                evil-collection flycheck general git-gutter
+                git-gutter-fringe lsp-mode lsp-ui magit projectile
+                ultra-scroll vterm)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
