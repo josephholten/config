@@ -28,6 +28,16 @@
   (load-file user-init-file)
   (message "Configuration reloaded from %s" user-init-file)
 )
+(defun tex-forward-search ()
+  "Forward search from Emacs to Zathura using SyncTeX."
+  (interactive)
+  (let* ((tex-file (buffer-file-name))
+         (pdf-file (replace-regexp-in-string "\\.tex$" ".pdf" tex-file))
+         (line-number (line-number-at-pos)))
+    (call-process "zathura" nil 0 nil
+                  "--synctex-forward"
+                  (format "%d:0:%s" line-number tex-file)
+                  pdf-file)))
 
 ; ------------ PACKAGES ----------------
 (use-package evil
@@ -63,6 +73,8 @@
     "wq" 'evil-quit
     "ws" 'evil-window-split
     "wv" 'evil-window-vsplit
+
+    "tv" 'tex-forward-search
   )
 )
 

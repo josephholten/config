@@ -3,3 +3,7 @@ set zoom-step 80
 set selection-clipboard clipboard
 
 set incremental-search true
+
+set synctex true
+set synctex-editor-command "emacsclient +%{line} %{input}"
+set selection-clipboard clipboard
