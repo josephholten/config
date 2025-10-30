@@ -1,4 +1,4 @@
-set zoom-step 80
+set zoom-step 20
 
 set selection-clipboard clipboard
 
