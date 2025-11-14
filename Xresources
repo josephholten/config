@@ -1,0 +1,4 @@
+xterm*foreground: white
+xterm*background: black
+xterm*faceName: Liberation Mono
+xterm*faceSize: 10
