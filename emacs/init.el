@@ -14,6 +14,7 @@
 (setq-default tab-width 2)
 (context-menu-mode t)
 (setq tex-fontify-script nil)
+(setq-default show-trailing-whitespace t)
 
 (unless (package-installed-p 'use-package)
   (package-refresh-contents)
@@ -78,8 +79,19 @@
     "wq" 'evil-quit
     "ws" 'evil-window-split
     "wv" 'evil-window-vsplit
+    "wl" 'evil-window-right
+    "wh" 'evil-window-left
+    "wk" 'evil-window-up
+    "wj" 'evil-window-down
 
     "tv" 'tex-forward-search
+  )
+)
+(use-package dired
+  :ensure nil
+  :general
+  (general-def 'normal 'dired-mode-map
+    "SPC" nil
   )
 )
 
@@ -156,6 +168,8 @@
   :ensure t
   :custom
   (vterm-kill-buffer-on-exit t)
+  :hook
+  (vterm-mode . (lambda () (setq show-trailing-whitespace nil)))
   :general
   (general-def 'normal 'vterm-mode-map
     "p" 'vterm-yank

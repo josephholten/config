@@ -17,8 +17,11 @@ Host joseph-tablet
 
 Host max-server
     User joseph
-    Hostname hirsch.ee
     ForwardAgent yes
+    # NOTE: hardcoded for now
+    ProxyJump 91.89.58.254
+    # should be:
+    # Hostname hirsch.ee
 
 Host filmclub
     Hostname studentischerfilmclub.de
