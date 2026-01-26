@@ -12,6 +12,8 @@
 (global-hl-line-mode 1)
 (setq-default indent-tabs-mode nil)
 (setq-default tab-width 2)
+(setq js-indent-level 2)
+(setq python-indent-offset 2)
 (context-menu-mode t)
 (setq tex-fontify-script nil)
 (setq-default show-trailing-whitespace t)
