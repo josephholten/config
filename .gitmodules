@@ -4,3 +4,6 @@
 [submodule "st"]
 	path = st
 	url = github.com:josephholten/st
+[submodule "networkmanager-dmenu"]
+	path = networkmanager-dmenu
+	url = https://github.com/firecat53/networkmanager-dmenu.git

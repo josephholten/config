@@ -76,6 +76,8 @@ bindsym $mod+p  exec rofi-rbw
 
 bindsym $mod+b  exec rofi -show p -modi p:"~/bin/rofi-kblayout"
 
+bindsym $mod+n exec ~/config/networkmanager-dmenu/networkmanager_dmenu
+
 # A more modern dmenu replacement is rofi:
 # bindcode $mod+40 exec "rofi -modi drun,run -show drun"
 # There also is i3-dmenu-desktop which only displays applications shipping a
