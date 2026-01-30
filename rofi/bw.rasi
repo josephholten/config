@@ -2,6 +2,7 @@
     bg: #000000;
     fg: #ffffff;
     accent: #4c7899;
+    hl: #222222;
 }
 
 window {
@@ -23,21 +24,29 @@ listview {
     background-color: @bg;
 }
 
+entry, prompt {
+    background-color: @bg;
+    text-color: @fg;
+}
+
 element {
     background-color: @bg;
     text-color: @fg;
 }
 
 element selected {
-    background-color: @fg;
-    text-color: @bg;
-}
-
-entry, prompt {
-    background-color: @bg;
+    background-color: @hl;
     text-color: @fg;
 }
+
 element-text {
     background-color: inherit;
     text-color: inherit;
+    font: inherit;
 }
+
+element-text selected {
+    background-color: @hl;
+    text-color: @fg;
+}
+
