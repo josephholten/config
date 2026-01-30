@@ -1,0 +1,43 @@
+* {
+    bg: #000000;
+    fg: #ffffff;
+    accent: #4c7899;
+}
+
+window {
+    background-color: @bg;
+    border: 5px;
+    border-color: @accent;
+}
+
+mainbox {
+    background-color: @bg;
+}
+
+inputbar {
+    background-color: @bg;
+    text-color: @fg;
+}
+
+listview {
+    background-color: @bg;
+}
+
+element {
+    background-color: @bg;
+    text-color: @fg;
+}
+
+element selected {
+    background-color: @fg;
+    text-color: @bg;
+}
+
+entry, prompt {
+    background-color: @bg;
+    text-color: @fg;
+}
+element-text {
+    background-color: inherit;
+    text-color: inherit;
+}
