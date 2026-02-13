@@ -10,6 +10,7 @@
 (setq inhibit-startup-message t)
 (global-display-line-numbers-mode)
 (global-hl-line-mode 1)
+(setq make-backup-files nil)
 (setq-default indent-tabs-mode nil)
 (setq-default tab-width 2)
 (setq js-indent-level 2)
