@@ -1,0 +1,60 @@
+pde01
+Model name:                           AMD Opteron(TM) Processor 6274
+Core(s) per socket:                   8
+Socket(s):                            2
+Mem		125Gi
+pde02
+Model name:                           AMD Opteron(TM) Processor 6274
+Core(s) per socket:                   8
+Socket(s):                            2
+Mem		125Gi
+pde06
+Model name:                           AMD Opteron(tm) Processor 6376
+Core(s) per socket:                   8
+Socket(s):                            4
+Mem		503Gi
+pde07
+Model name:                           AMD Opteron(tm) Processor 6376
+Core(s) per socket:                   8
+Socket(s):                            4
+Mem		503Gi
+pde08
+Model name:                           AMD EPYC 7551 32-Core Processor
+Core(s) per socket:                   32
+Socket(s):                            2
+Mem		503Gi
+pde09
+Model name:                           AMD EPYC 7551 32-Core Processor
+Core(s) per socket:                   32
+Socket(s):                            2
+Mem		503Gi
+pde10
+Model name:                           AMD EPYC 7513 32-Core Processor
+Core(s) per socket:                   32
+Socket(s):                            2
+Mem		503Gi
+pde11
+Model name:                           AMD EPYC 7513 32-Core Processor
+Core(s) per socket:                   32
+Socket(s):                            2
+Mem		503Gi
+pde12
+Model name:                           AMD EPYC 7713 64-Core Processor
+Core(s) per socket:                   64
+Socket(s):                            2
+Mem		1.0Ti
+pde13
+Model name:                           AMD EPYC 7713 64-Core Processor
+Core(s) per socket:                   64
+Socket(s):                            2
+Mem		1.0Ti
+pde21
+Model name:                           AMD Ryzen Threadripper 2990WX 32-Core Processor
+Core(s) per socket:                   32
+Socket(s):                            1
+Mem		125Gi
+pde22
+Model name:                           AMD Ryzen Threadripper 2990WX 32-Core Processor
+Core(s) per socket:                   32
+Socket(s):                            1
+Mem		125Gi
