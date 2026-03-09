@@ -235,3 +235,4 @@ for_window [class=Matplotlib] floating enable
 for_window [class=System-config-printer.py] floating enable
 for_window [class=Gpick] floating enable
 for_window [class=PETSc] floating enable
+for_window [class=Vtk] floating enable

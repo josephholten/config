@@ -194,33 +194,12 @@
   (setq doom-modeline-icon nil)
 )
 
-(use-package flycheck
-  :init
-  ;(setq global-flycheck-mode -1)
-  ;:hook ((python-mode c++-mode c-mode) . flycheck-mode)
-  :config
-  (setq flycheck-check-syntax-automatically '(mode-enabled save))
-)
-
 (use-package cmake-mode
   :ensure t)
 
-(use-package lsp-ui
-  :ensure t)
-
-(use-package lsp-mode
-  :commands (lsp lsp-deferred)
-  :hook ((c-mode python-mode) . lsp-deferred)
-  :config
-  (setq lsp-enable-symbol-highlighting nil)
-  (setq lsp-lens-enable nil)
-  (setq lsp-ui-doc-position 'bottom)
-  (setq lsp-ui-doc-show-with-mouse nil)
-  (setq flycheck-idle-change-delay 1)
-  (setq lsp-ui-sideline-enable nil)
-  (setq lsp-modeline-code-actions-enable nil)
-  (setq lsp-modeline-diagnostics-enable nil)
-)
+(use-package julia-mode
+  :ensure t
+  :pin nongnu)
 
 ; ------ THEME ----------
 
@@ -236,11 +215,12 @@
  '(package-selected-packages
    '(cmake-mode consult consult-projectile doom-modeline evil
                 evil-collection flycheck general git-gutter
-                git-gutter-fringe lsp-mode lsp-ui magit projectile
-                ultra-scroll vterm)))
+                git-gutter-fringe julia-mode lsp-mode lsp-ui magit
+                projectile ultra-scroll vterm)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  )
+
