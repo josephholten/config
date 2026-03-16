@@ -201,6 +201,9 @@
   :ensure t
   :pin nongnu)
 
+(use-package ein
+  :ensure t)
+
 ; ------ THEME ----------
 
 (add-to-list 'custom-theme-load-path "~/.config/emacs/")
@@ -213,7 +216,7 @@
  ;; If there is more than one, they won't work right.
  '(custom-safe-themes '(default))
  '(package-selected-packages
-   '(cmake-mode consult consult-projectile doom-modeline evil
+   '(cmake-mode consult consult-projectile doom-modeline ein evil
                 evil-collection flycheck general git-gutter
                 git-gutter-fringe julia-mode lsp-mode lsp-ui magit
                 projectile ultra-scroll vterm)))

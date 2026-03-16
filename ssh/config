@@ -15,13 +15,18 @@ Host joseph-tablet
     Port 8022
     ForwardAgent yes
 
-Host max-server
+Host max-pi
     User joseph
     ForwardAgent yes
     # NOTE: hardcoded for now
-    ProxyJump 91.89.58.254
+    Hostname 91.89.58.254
     # should be:
     # Hostname hirsch.ee
+
+Host max-server
+    User joseph
+    ForwardAgent yes
+    ProxyJump max-pi
 
 Host filmclub
     Hostname studentischerfilmclub.de
