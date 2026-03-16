@@ -13,7 +13,6 @@ call vundle#begin()
 call vundle#end()
 
 filetype plugin indent on
-syntax on
 set background=dark
 colorscheme quiet
 set hidden
@@ -60,7 +59,7 @@ let g:vimtex_compiler_latexmk = {
     \}
 let g:vimtex_view_skim_activate = 1
 
-if empty(v:servername) && exists('*remote_startserver')
+if has('clientserver') && empty(v:servername) && exists('*remote_startserver')
       call remote_startserver('VIM')
 endif
 
