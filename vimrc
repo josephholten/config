@@ -14,7 +14,11 @@ call vundle#end()
 
 filetype plugin indent on
 set background=dark
-colorscheme quiet
+
+silent! colorscheme quiet
+if !exists('g:colors_name') || g:colors_name != 'quiet'
+    syntax off
+endif
 set hidden
 set number relativenumber
 set linebreak
