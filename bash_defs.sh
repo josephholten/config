@@ -11,7 +11,7 @@ export CMAKE_GENERATOR=Ninja
 
 #  -------------- FUNCTIONS & ALIAS' -------------------
 
-alias ls="ls --color --group-directories-first"
+alias ls="ls -F --group-directories-first"
 alias cp="cp -ir"                          # confirm before overwriting something
 alias mv="mv -i"                           # confirm before overwriting something
 alias more=less
