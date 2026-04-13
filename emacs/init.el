@@ -173,6 +173,7 @@
   (vterm-kill-buffer-on-exit t)
   :hook
   (vterm-mode . (lambda () (setq show-trailing-whitespace nil)))
+  (vterm-mode . (lambda () (display-line-numbers-mode -1)))
   :general
   (general-def 'normal 'vterm-mode-map
     "p" 'vterm-yank
