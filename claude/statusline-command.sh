@@ -7,7 +7,7 @@ _time_pct() {
   local resets_at=$1 duration=$2
   [ -z "$resets_at" ] && return
   local resets remaining elapsed
-  resets=$(date -d "$resets_at" +%s 2>/dev/null) || return
+  resets=$(date -d "@$resets_at" +%s 2>/dev/null) || return
   remaining=$(( resets - now ))
   elapsed=$(( duration - remaining ))
   printf '%.0f' "$(echo "scale=2; $elapsed * 100 / $duration" | bc)"
@@ -23,4 +23,10 @@ week=$(echo "$input" | jq -r '.rate_limits.seven_day.used_percentage // "??"')
 fres=$(echo "$input" | jq -r '.rate_limits.five_hour.resets_at // empty')
 wres=$(echo "$input" | jq -r '.rate_limits.seven_day.resets_at // empty')
 
-printf '%s | ctx: %s%% | 5h: %s%% | 7d: %s%%' "$model" "$ctx" "$five" "$week"
+fpct=$(_time_pct "$fres" 18000)
+wpct=$(_time_pct "$wres" 604800)
+
+printf '%s | ctx: %s%% | 5h: %s/%s%% | 7d: %s/%s%%' \
+  "$model" "$ctx" \
+  "$five" "${fpct:+${fpct}}" \
+  "$week" "${wpct:+${wpct}}"
