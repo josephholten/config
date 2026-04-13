@@ -47,4 +47,8 @@ Host ianm-hpc ianm-chil
 Host pde?? pde-fs
     Hostname %h.cluster.math.kit.edu
     User np6630
-    ForwardAgent yes
+
+Host uc3
+    Hostname uc3.scc.kit.edu
+    User ka_np6630
+    IdentityFile .ssh/id_ed25519_sk
