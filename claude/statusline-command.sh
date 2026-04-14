@@ -28,5 +28,5 @@ wpct=$(_time_pct "$wres" 604800)
 
 printf '%s | ctx: %s%% | 5h: %s/%s%% | 7d: %s/%s%%' \
   "$model" "$ctx" \
-  "$five" "${fpct:+${fpct}}" \
-  "$week" "${wpct:+${wpct}}"
+  "$five" "${fpct:-??}" \
+  "$week" "${wpct:-??}"
