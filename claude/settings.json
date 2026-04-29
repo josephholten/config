@@ -1,6 +1,9 @@
 {
+  "model": "opus",
   "statusLine": {
     "type": "command",
     "command": "bash /home/joseph/.claude/statusline-command.sh"
-  }
+  },
+  "effortLevel": "medium",
+  "theme": "dark-ansi"
 }

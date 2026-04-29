@@ -16,9 +16,9 @@ _time_pct() {
 input=$(cat)
 
 model=$(echo "$input" | jq -r '.model.display_name // .model.id // "Claude"')
-ctx=$(echo "$input" | jq -r '.context_window.used_percentage // "??"')
-five=$(echo "$input" | jq -r '.rate_limits.five_hour.used_percentage // "??"')
-week=$(echo "$input" | jq -r '.rate_limits.seven_day.used_percentage // "??"')
+five=$(echo "$input" | jq -r '(.rate_limits.five_hour.used_percentage // "??") | if type=="number" then floor else . end')
+week=$(echo "$input" | jq -r '(.rate_limits.seven_day.used_percentage    // "??") | if type=="number" then floor else . end')
+ctx=$(echo  "$input" | jq -r '(.context_window.used_percentage           // "??") | if type=="number" then floor else . end')
 
 fres=$(echo "$input" | jq -r '.rate_limits.five_hour.resets_at // empty')
 wres=$(echo "$input" | jq -r '.rate_limits.seven_day.resets_at // empty')
