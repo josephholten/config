@@ -28,11 +28,11 @@ alias rclone='rclone --verbose --progress'
 alias em="emacsclient"
 
 of() {
-    fd --hidden --type f | fzf --print0 | xargs -0 -I {} bash -c 'xdg-open "{}" & disown'
+  fd --type f . "${1:-.}" | fzf --print0 | xargs -0 -I {} bash -c 'xdg-open "{}" & disown'
 }
 
 vf() {
-    fd --hidden --type f | fzf --print0 | xargs -0 -o vim
+  fd --type f . "${1:-.}" | fzf --print0 | xargs -0 -o vim
 }
 
 dc() {
