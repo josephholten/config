@@ -11,6 +11,6 @@
 [credential]
 	helper = /sbin/pass-git-helper
 [core]
-  excludesfile = ~/config/.gitignore_global
+  excludesfile = ~/config/git/ignore
 [url "git@github.com:"]
 	insteadOf = https://github.com/
