@@ -135,7 +135,7 @@
     "s" 'consult-projectile-ripgrep
   )
   :config
-  (setq projectile-project-search-path '("~/phd" "~/programming" "~/src" "~/config"))
+  (setq projectile-project-search-path '("~/phd" "~/programming" "~/src" "~/config" "~/phd/HyperHDG"))
   (setq projectile-indexing-method 'alien)
   (setq projectile-enable-caching 'persistent)
   (setq projectile-switch-project-action 'projectile-dired)
@@ -184,6 +184,7 @@
     "C-y" 'vterm--self-insert
     "C-d" 'vterm--self-insert
     "C-r" 'vterm--self-insert
+    "C-b" 'vterm--self-insert
   )
 )
 
