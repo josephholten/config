@@ -131,7 +131,6 @@
     "p" 'projectile-command-map
   )
   (:keymaps 'projectile-command-map
-    "x v" 'projectile-run-vterm-other-window
     "s" 'consult-projectile-ripgrep
   )
   :config
@@ -174,6 +173,10 @@
   :hook
   (vterm-mode . (lambda () (setq show-trailing-whitespace nil)))
   (vterm-mode . (lambda () (display-line-numbers-mode -1)))
+  (vterm-mode . (lambda ()
+                  (add-hook 'evil-insert-state-entry-hook
+                            (lambda () (vterm-goto-char (point)))
+                            nil t)))
   :general
   (general-def 'normal 'vterm-mode-map
     "p" (lambda () (interactive)
@@ -188,6 +191,23 @@
     "C-r" 'vterm--self-insert
     "C-b" 'vterm--self-insert
   )
+)
+
+(use-package multi-vterm
+  :ensure t
+  :after vterm
+  :general
+  (leader-def 'normal
+    "t t" 'multi-vterm
+    "t p" 'multi-vterm-project
+    "t d" 'multi-vterm-dedicated-toggle
+    "t r" 'multi-vterm-rename-buffer
+  )
+  (general-def 'normal 'vterm-mode-map
+    "]t" 'multi-vterm-next
+    "[t" 'multi-vterm-prev
+  )
+  ("<f12>" 'multi-vterm-dedicated-toggle)
 )
 
 (use-package doom-modeline
@@ -219,11 +239,7 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(custom-safe-themes '(default))
- '(package-selected-packages
-   '(cmake-mode consult consult-projectile doom-modeline ein evil
-                evil-collection flycheck general git-gutter
-                git-gutter-fringe julia-mode lsp-mode lsp-ui magit
-                projectile ultra-scroll vterm)))
+ '(package-selected-packages nil))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
