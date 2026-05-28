@@ -176,8 +176,10 @@
   (vterm-mode . (lambda () (display-line-numbers-mode -1)))
   :general
   (general-def 'normal 'vterm-mode-map
-    "p" 'vterm-yank
-  )
+    "p" (lambda () (interactive)
+          (unless (eolp) (forward-char))
+          (vterm-yank))
+    "P" 'vterm-yank)
   (general-def 'insert 'vterm-mode-map
     "C-v" 'vterm-yank-primary
     "C-u" 'vterm--self-insert
