@@ -186,6 +186,7 @@
   (general-def 'insert 'vterm-mode-map
     "C-v" 'vterm-yank-primary
     "C-u" 'vterm--self-insert
+    "C-o" 'vterm--self-insert
     "C-y" 'vterm--self-insert
     "C-d" 'vterm--self-insert
     "C-r" 'vterm--self-insert
