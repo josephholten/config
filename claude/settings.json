@@ -4,6 +4,6 @@
     "type": "command",
     "command": "bash /home/joseph/.claude/statusline-command.sh"
   },
-  "effortLevel": "medium",
+  "effortLevel": "xhigh",
   "theme": "dark-ansi"
 }
