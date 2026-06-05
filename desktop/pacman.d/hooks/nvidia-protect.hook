@@ -1,0 +1,10 @@
+[Trigger]
+Operation = Remove
+Type = Package
+Target = nvidia-580xx-dkms
+Target = nvidia-580xx-utils
+
+[Action]
+Description = Refusing to remove legacy NVIDIA driver
+When = PreTransaction
+Exec = /usr/bin/false
