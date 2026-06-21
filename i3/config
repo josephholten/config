@@ -59,10 +59,10 @@ floating_modifier $mod
 tiling_drag modifier titlebar
 
 # start a terminal
-bindsym $mod++Return exec st
+bindsym $mod++Return exec ~/bin/st
 
 # start a floating terminal
-bindsym $mod+Shift+Return exec st -c "st-floating"
+bindsym $mod+Shift+Return exec ~/bin/st -c "st-floating"
 
 # kill focused window
 bindsym $mod+w kill
