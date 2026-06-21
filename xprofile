@@ -16,3 +16,7 @@ xss-lock -l env XSECURELOCK_SHOW_DATETIME=1 XSECURELOCK_DATETIME_FORMAT=%Y-%m-%d
 st -c "st-floating" &
 batsignal -b -i -e -c 10 -d 5 -D $HOME/bin/fullscreen_warning
 emacs --daemon &
+
+# stacked system-info panel, shown only while $mod (Super) is held
+conky -d -c $HOME/.config/conky/conky.conf
+$HOME/.config/conky/conky-mod-toggle.sh &

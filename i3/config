@@ -210,6 +210,7 @@ bindsym $mod+r mode "resize"
 # finds out, if available)
 bar {
         status_command i3status
+        font pango:monospace 14
         mode hide
         modifier $mod
 }

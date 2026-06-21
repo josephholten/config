@@ -11,13 +11,15 @@ general {
         interval = 5
 }
 
-order += "ipv6"
-order += "wireless _first_"
-order += "ethernet _first_"
-order += "battery all"
-order += "disk /"
-order += "load"
-order += "memory"
+# i3bar now shows only a short clock. The full system info (net,
+# battery, cpu, ram, disk) lives in the conky panel (Super-hold).
+#order += "ipv6"
+#order += "wireless _first_"
+#order += "ethernet _first_"
+#order += "battery all"
+#order += "disk /"
+#order += "load"
+#order += "memory"
 order += "tztime local"
 
 wireless _first_ {
@@ -50,5 +52,5 @@ memory {
 }
 
 tztime local {
-        format = "%Y-%m-%dT%H:%M:%S%z"
+        format = "%Y-%m-%d %H:%M"
 }
