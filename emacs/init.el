@@ -192,6 +192,44 @@
     "C-r" 'vterm--self-insert
     "C-b" 'vterm--self-insert
   )
+  :config
+  ;; Keep the view where you put it when you scroll up into the scrollback.
+  ;; Frequent terminal output (e.g. Claude Code's progress spinner) repaints
+  ;; every `vterm-timer-delay' seconds, and each repaint moves point/window to
+  ;; the terminal cursor -- which makes it impossible to scroll up and read
+  ;; while a program is still producing output.  We freeze a window only when
+  ;; its point sits ABOVE the terminal cursor (i.e. you've scrolled up into the
+  ;; scrollback).  A window at or below the cursor -- where you are while typing
+  ;; -- keeps following output, so the cursor still tracks your input.
+  (defvar-local my/vterm--cursor-anchor nil
+    "Buffer position of the terminal cursor right after the last redraw.")
+  (defun my/vterm--keep-scroll-position (orig-fn buffer)
+    "Around advice for `vterm--delayed-redraw' that preserves scrollback view."
+    (let (saved)
+      (when (buffer-live-p buffer)
+        (with-current-buffer buffer
+          (let ((anchor my/vterm--cursor-anchor))
+            ;; Only act on a sane anchor; after a screen clear the buffer can
+            ;; shrink below it, in which case we just let everything follow.
+            (when (and anchor (<= anchor (point-max)))
+              (dolist (win (get-buffer-window-list buffer nil t))
+                (when (< (window-point win) anchor)
+                  (push (list win (window-start win) (window-point win))
+                        saved)))))))
+      (funcall orig-fn buffer)
+      ;; Record where the cursor landed *before* restoring any frozen windows,
+      ;; so the anchor tracks the terminal cursor rather than a scrolled view.
+      (when (buffer-live-p buffer)
+        (with-current-buffer buffer
+          (setq my/vterm--cursor-anchor (point))))
+      (dolist (entry saved)
+        (let ((win (nth 0 entry))
+              (start (nth 1 entry))
+              (wpoint (nth 2 entry)))
+          (when (window-live-p win)
+            (set-window-start win start t)
+            (set-window-point win wpoint))))))
+  (advice-add 'vterm--delayed-redraw :around #'my/vterm--keep-scroll-position)
 )
 
 (use-package multi-vterm
