@@ -1,21 +1,35 @@
 #!/usr/bin/env bash
-# Battery status for conky, short form: "<pct>%  <sign><H:MM>".
-# sign = '+' charging, '-' discharging, ' ' otherwise (full/idle).
-# Auto-detects the first battery (no BAT0 hardcoded); prints "AC" when no
-# battery is present. Time-to-empty/full from energy+power or charge+current.
+# Battery status for conky. Two modes (so conky can place them in
+# separate columns -- percent left, time right-aligned):
+#   conky-bat.sh pct   -> "<pct>%"  right-padded to 3 digits (e.g. " 42%")
+#   conky-bat.sh time  -> "<arrow> <H:MM>"  arrow = down discharging,
+#                         up charging, blank otherwise; empty if no estimate
+# Auto-detects the first battery (no BAT0 hardcoded). "AC" / "" when none.
+mode="${1:-pct}"
+
 bat=""
 for d in /sys/class/power_supply/*; do
     [ "$(cat "$d/type" 2>/dev/null)" = Battery ] || continue
     bat="$d"; break
 done
-[ -z "$bat" ] && { echo "AC"; exit 0; }
+if [ -z "$bat" ]; then
+    [ "$mode" = pct ] && echo "AC"
+    exit 0
+fi
 
 cap=$(cat "$bat/capacity" 2>/dev/null)
 status=$(cat "$bat/status" 2>/dev/null)
+
+if [ "$mode" = pct ]; then
+    printf '%3d%%\n' "$cap"
+    exit 0
+fi
+
+# time mode
 case "$status" in
-    Charging)    sign='+' ;;
-    Discharging) sign='-' ;;
-    *)           sign=' ' ;;
+    Charging)    arrow=$'↑' ;;   # up: filling
+    Discharging) arrow=$'↓' ;;   # down: draining
+    *)           arrow=' ' ;;
 esac
 
 # energy (uWh) + power (uW), else charge (uAh) + current (uA)
@@ -37,4 +51,4 @@ if [ -n "$rate" ] && [ "$rate" -gt 0 ] 2>/dev/null; then
     fi
 fi
 
-if [ -n "$t" ]; then printf '%s%%  %s%s\n' "$cap" "$sign" "$t"; else printf '%s%%\n' "$cap"; fi
+[ -n "$t" ] && printf '%s %s\n' "$arrow" "$t"
