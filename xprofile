@@ -17,6 +17,7 @@ st -c "st-floating" &
 batsignal -b -i -e -c 10 -d 5 -D $HOME/bin/fullscreen_warning
 emacs --daemon &
 
-# stacked system-info panel, shown only while $mod (Super) is held
-conky -d -c $HOME/.config/conky/conky.conf
+# stacked system-info panel, shown only while $mod (Super) is held.
+# conky-launch.sh spawns one conky per monitor (also re-run by autorandr).
+$HOME/.config/conky/conky-launch.sh
 $HOME/.config/conky/conky-mod-toggle.sh &

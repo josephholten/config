@@ -19,12 +19,15 @@ SUPER_R=134
 
 DELAY=0.3   # seconds Super must be held before the panel shows
 
-find_win() { xdotool search --class Conky 2>/dev/null | head -n1; }
+# There is one conky window per monitor (see conky-launch.sh), so operate
+# on all of them at once.
+find_wins()  { xdotool search --class Conky 2>/dev/null; }
+map_wins()   { for w in $(find_wins); do xdotool windowmap "$w"; xdotool windowraise "$w"; done; }
+unmap_wins() { for w in $(find_wins); do xdotool windowunmap "$w"; done; }
 
-# Start hidden once conky's window exists.
+# Start hidden once conky's windows exist.
 for _ in $(seq 1 50); do
-    win=$(find_win)
-    [ -n "$win" ] && { xdotool windowunmap "$win"; break; }
+    [ -n "$(find_wins)" ] && { unmap_wins; break; }
     sleep 0.1
 done
 
@@ -38,18 +41,17 @@ xinput test-xi2 --root 2>/dev/null | while IFS= read -r line; do
         *"detail:"*)
             code=${line##*detail: }
             [ "$code" = "$SUPER_L" ] || [ "$code" = "$SUPER_R" ] || continue
-            win=$(find_win)
-            [ -n "$win" ] || continue
+            [ -n "$(find_wins)" ] || continue
             if [ "$ev" = press ] && [ "$held" -eq 0 ]; then
                 held=1
                 # arm timer: map only if still held after $DELAY
-                ( sleep "$DELAY"; xdotool windowmap "$win"; xdotool windowraise "$win" ) &
+                ( sleep "$DELAY"; map_wins ) &
                 timer=$!
             elif [ "$ev" = release ] && [ "$held" -eq 1 ]; then
                 held=0
                 [ -n "$timer" ] && kill "$timer" 2>/dev/null   # cancel if not yet fired
                 timer=""
-                xdotool windowunmap "$win"
+                unmap_wins
             fi
             ;;
     esac
