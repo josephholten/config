@@ -6,7 +6,11 @@
 # cached in $STATE, so no sleeping -> safe to run every conky update),
 # and prints one bar line per physical core.
 
-STATE="${TMPDIR:-/tmp}/conky-cpu.$(id -u)"
+# Per Xinerama head: one conky instance runs per monitor (see
+# conky-launch.sh), each exec'ing this script. They must NOT share the
+# counter cache -- interleaved reads/writes corrupt the deltas and report
+# nonsense (>100%). $CONKY_HEAD is inherited from conky's environment.
+STATE="${TMPDIR:-/tmp}/conky-cpu.$(id -u).${CONKY_HEAD:-0}"
 WIDTH=10   # bar width in characters
 
 # core_id -> list of logical cpu indices

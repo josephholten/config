@@ -2,7 +2,9 @@
 # Top processes by instantaneous CPU (htop-style), count = nproc.
 # Caches per-pid CPU jiffies between calls so no sampling sleep is needed;
 # %CPU is per-core (a fully-busy single thread reads ~100%).
-STATE="${TMPDIR:-/tmp}/conky-top.$(id -u)"
+# Per Xinerama head, so multiple conky instances (one per monitor, see
+# conky-launch.sh) don't corrupt each other's cached jiffies/deltas.
+STATE="${TMPDIR:-/tmp}/conky-top.$(id -u).${CONKY_HEAD:-0}"
 ncpu=$(nproc)
 N=$ncpu
 
