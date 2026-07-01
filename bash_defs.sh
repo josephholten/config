@@ -2,6 +2,7 @@
 GOPATH=$HOME/.gopath
 export PATH="/home/joseph/bin/:/usr/local/texlive/2021/bin/x86_64-linux:/home/joseph/bin:/home/joseph/.config/emacs/bin:/home/joseph/.local/bin:/usr/lib/emscripten:$GOPATH:$GOPATH/bin:/opt/Citrix/ICAClient:/home/joseph/programming/gcc-cross-compiler/opt/cross/bin:/opt/adaptivecpp/bin:$PATH"
 export PATH=/home/joseph/.julia/bin:$PATH
+export PATH="$HOME/src/spack/bin:$HOME/spack/bin:$PATH"
 export MANPATH="/usr/local/texlive/2021/texmf-dist/doc/man:$MANPATH"
 export INFOPATH="/usr/local/texlive/2021/texmf-dist/doc/info:$INFOPATH"
 
@@ -68,4 +69,46 @@ gpgdecrypt () {
   output=$(echo "${1}" | rev | cut -c16- | rev)
   gpg --decrypt --output ${output} "${1}" && \
     echo "${1} -> ${output}"
+}
+
+# interactive timezone picker: fuzzy-search a big city list (or just zones) and
+# apply it. Uses a cached GeoNames cities db under XDG_DATA_HOME; if it's missing
+# and we're online it grabs the large one (~200k cities, the tz is column 18);
+# offline with no cache it falls back to the plain `timedatectl` zone list.
+# rm the db file to force a refresh.
+settz () {
+  local datadir="${XDG_DATA_HOME:-$HOME/.local/share}"
+  local datafile="$datadir/geonames-cities500.txt"
+  local url="https://download.geonames.org/export/dump/cities500.zip"
+  local list sel tz tmp
+
+  if [[ ! -s "$datafile" ]]; then
+    mkdir -p "$datadir"
+    tmp=$(mktemp)
+    if curl -fsSL --connect-timeout 5 -o "$tmp" "$url" 2>/dev/null \
+       && bsdtar -xOf "$tmp" cities500.txt > "$datafile" 2>/dev/null; then
+      echo "settz: cached city database at $datafile" >&2
+    else
+      rm -f "$datafile"   # no half-written/empty db
+    fi
+    rm -f "$tmp"
+  fi
+
+  if [[ -s "$datafile" ]]; then
+    # GeoNames cities (col 2=name 9=country 15=pop 18=tz), pop-sorted, plus the
+    # raw IANA zones; each line is "<display>\t<tz>", deduped on the whole line.
+    list=$(
+      { awk -F'\t' '$18 != "" {
+            printf "%s\t%s, %s  \xE2\x86\x92  %s\t%s\n", $15, $2, $9, $18, $18 }' "$datafile" \
+          | sort -t$'\t' -k1,1nr | cut -f2- ;
+        timedatectl list-timezones | awk '{ print $1 "\t" $1 }' ;
+      } | awk -F'\t' '!seen[$0]++'
+    )
+  else
+    list=$(timedatectl list-timezones | awk '{ print $1 "\t" $1 }')
+  fi
+
+  sel=$(fzf --delimiter='\t' --with-nth=1 --prompt='timezone> ' <<< "$list") || return
+  tz=$(cut -f2 <<< "$sel")
+  [[ -n "$tz" ]] && sudo timedatectl set-timezone "$tz"
 }
