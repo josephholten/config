@@ -173,13 +173,13 @@ int main(int argc, char** argv) {
         if (event.type == Expose) {
             if (xft_font) {
                 XGlyphInfo extents;
-                XftTextExtents8(display, xft_font, (XftChar8 *)message, strlen(message), &extents);
+                XftTextExtentsUtf8(display, xft_font, (XftChar8 *)message, strlen(message), &extents);
 
                 int x = (monitor.width - extents.width) / 2;
                 int y = (monitor.height + extents.height) / 2;
 
-                XftDrawString8(xft_draw, &xft_color, xft_font, x, y,
-                               (XftChar8 *)message, strlen(message));
+                XftDrawStringUtf8(xft_draw, &xft_color, xft_font, x, y,
+                                  (XftChar8 *)message, strlen(message));
             }
         } else if (event.type == KeyPress) {
             break;

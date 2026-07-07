@@ -112,3 +112,9 @@ settz () {
   tz=$(cut -f2 <<< "$sel")
   [[ -n "$tz" ]] && sudo timedatectl set-timezone "$tz"
 }
+
+
+timer() {
+  msg=$1; shift
+  echo "DISPLAY=:0 ~/bin/fullscreen_warning -m '$msg' -b blue" | at $@ 2> /dev/null
+}

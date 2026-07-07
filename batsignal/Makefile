@@ -6,5 +6,8 @@ fullscreen_warning: fullscreen_warning.c
 install: fullscreen_warning
 	cp fullscreen_warning $(HOME)/bin
 
+uninstall:
+	rm -rf $(HOME)/bin/fullscreen_warning
+
 clean:
 	rm -rf fullscreen_warning
