@@ -4,7 +4,9 @@
     "type": "command",
     "command": "bash /home/joseph/.claude/statusline-command.sh"
   },
-  "effortLevel": "xhigh",
+  "effortLevel": "high",
   "tui": "fullscreen",
-  "theme": "dark-ansi"
+  "theme": "dark-ansi",
+  "remoteControlAtStartup": false,
+  "agentPushNotifEnabled": false
 }
