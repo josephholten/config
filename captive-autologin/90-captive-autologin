@@ -1,0 +1,14 @@
+#!/bin/bash
+# NetworkManager dispatcher hook: try captive portal auto-login whenever
+# a connection comes up or connectivity state changes (e.g. NM detects
+# a portal). The worker exits immediately when already online, and only
+# acts on portals it has a handler for, so running unconditionally is
+# cheap. Runs in the background so dispatcher events are not blocked.
+
+case "$2" in
+    up|connectivity-change) ;;
+    *) exit 0 ;;
+esac
+
+setsid /usr/local/bin/captive-autologin >/dev/null 2>&1 &
+exit 0

@@ -1,0 +1,93 @@
+#!/bin/bash
+# captive-autologin — auto-accept captive portal EULAs.
+# Run by NetworkManager dispatcher on connect; safe to run manually.
+# Supported portals: Hotsplots (CoovaChilli), e.g. WIFI@DB regional trains.
+# Unknown portals are logged (journalctl -t captive-autologin) so a
+# handler can be added.
+
+CHECK_URL="http://detectportal.firefox.com/success.txt"
+DEBUG_FILE="/tmp/captive-autologin-last-response.html"
+
+log() { logger -t captive-autologin "$*"; echo "captive-autologin: $*"; }
+
+online() { [[ "$(curl -s -m 5 "$CHECK_URL")" == success* ]]; }
+
+urldecode() { local d="${1//+/ }"; printf '%b' "${d//%/\\x}"; }
+
+# POST the Hotsplots AGB (terms) form, then hit the CoovaChilli logon URL
+# returned in the response. $1 = login.php URL incl. query string.
+hotsplots_login() {
+    local query="${1#*\?}" kv key
+    declare -A P
+    IFS='&' read -ra kv <<< "$query"
+    for p in "${kv[@]}"; do
+        key="${p%%=*}"
+        P[$key]="$(urldecode "${p#*=}")"
+    done
+    if [[ -z "${P[challenge]}" || -z "${P[uamip]}" ]]; then
+        log "hotsplots: missing challenge/uamip in $1"
+        return 1
+    fi
+
+    local resp
+    resp=$(curl -s -i -m 15 \
+        --data-urlencode "haveTerms=1" \
+        --data-urlencode "termsOK=1" \
+        --data-urlencode "button=kostenlos einloggen" \
+        --data-urlencode "challenge=${P[challenge]}" \
+        --data-urlencode "uamip=${P[uamip]}" \
+        --data-urlencode "uamport=${P[uamport]:-80}" \
+        --data-urlencode "userurl=${P[userurl]:-http://detectportal.firefox.com/}" \
+        --data-urlencode "myLogin=agb" \
+        --data-urlencode "ll=de" \
+        --data-urlencode "nasid=${P[nasid]}" \
+        --data-urlencode "custom=0" \
+        "https://www.hotsplots.de/auth/login.php")
+
+    local logon
+    logon=$(grep -oE "http://${P[uamip]}:${P[uamport]:-80}/logon\?[^\"'< ]+" \
+        <<< "$resp" | head -1 | sed 's/&amp;/\&/g')
+    if [[ -z "$logon" ]]; then
+        printf '%s' "$resp" > "$DEBUG_FILE"
+        log "hotsplots: no logon URL in response, saved to $DEBUG_FILE"
+        return 1
+    fi
+    curl -s -m 10 "$logon" > /dev/null
+}
+
+for attempt in 1 2 3; do
+    if online; then
+        [[ $attempt -gt 1 ]] && log "portal accepted, online"
+        exit 0
+    fi
+
+    portal=$(curl -s -m 8 -o /dev/null -w '%{redirect_url}' "$CHECK_URL")
+    if [[ -z "$portal" ]]; then
+        sleep 2
+        continue
+    fi
+
+    # Some portals wrap the real login URL, e.g.
+    # portal.iob.de/?loginurl=<encoded hotsplots login.php URL>
+    login_url="$portal"
+    if [[ "$portal" == *loginurl=* ]]; then
+        enc="${portal#*loginurl=}"
+        login_url=$(urldecode "${enc%%&*}")
+    fi
+
+    case "$login_url" in
+        *hotsplots.de/auth/login.php*)
+            log "hotsplots portal detected, accepting terms"
+            hotsplots_login "$login_url"
+            ;;
+        *)
+            log "no handler for portal: $login_url"
+            exit 1
+            ;;
+    esac
+    sleep 2
+done
+
+online && exit 0
+log "still captive after 3 attempts"
+exit 1
