@@ -51,4 +51,4 @@ Host pde?? pde-fs
 Host uc3
     Hostname uc3.scc.kit.edu
     User ka_np6630
-    IdentityFile .ssh/id_ed25519_sk
+    IdentityFile ~/.ssh/id_ed25519_sk
