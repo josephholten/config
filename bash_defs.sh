@@ -118,3 +118,11 @@ timer() {
   msg=$1; shift
   echo "DISPLAY=:0 ~/bin/fullscreen_warning -m '$msg' -b blue" | at $@ 2> /dev/null
 }
+
+ssh-persist() {
+  if ssh -O check "$@" 2>/dev/null; then
+    echo "master already running — 'ssh -O exit <host>' first"
+    return 1
+  fi
+  ssh -MNf -o ControlPersist="${SSH_PERSIST:-48h}" "$@"
+}

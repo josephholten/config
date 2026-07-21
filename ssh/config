@@ -1,3 +1,6 @@
+Host joseph-pi pde?? pde-fs uc3
+    WarnWeakCrypto no-pq-kex
+
 Host joseph-server joseph-pi
     User joseph
     ForwardAgent yes
@@ -28,17 +31,8 @@ Host max-server
     ForwardAgent yes
     ProxyJump max-pi
 
-Host filmclub
-    Hostname studentischerfilmclub.de
-
 Host github.com gitlab.kit.edu
     User git
-
-Host github.com-anni
-    HostName github.com
-    User git
-    IdentityFile ~/.ssh/id_anni
-    IdentitiesOnly yes
 
 Host ianm-hpc ianm-chil
     Hostname  %h.math.kit.edu
@@ -51,4 +45,12 @@ Host pde?? pde-fs
 Host uc3
     Hostname uc3.scc.kit.edu
     User ka_np6630
-    IdentityFile ~/.ssh/id_ed25519_sk
+    IdentityFile ~/.ssh/id_ed25519_sk_rk
+    IdentitiesOnly yes
+    ControlPersist 4h
+
+Host *
+    ControlMaster auto
+    ControlPersist no
+    ControlPath ~/.ssh/cm-%C
+
