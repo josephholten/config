@@ -2,7 +2,7 @@
   "model": "claude-fable-5[1m]",
   "statusLine": {
     "type": "command",
-    "command": "bash /home/joseph/.claude/statusline-command.sh"
+    "command": "sh /home/joseph/.claude/statusline.sh"
   },
   "effortLevel": "high",
   "tui": "fullscreen",
