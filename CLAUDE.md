@@ -22,7 +22,7 @@ Target system: Arch Linux + X11 + i3 + Emacs + st (suckless terminal). Some conf
 Two custom X11 helpers ship as source and need to be compiled and installed into `~/bin` before `xprofile` can launch them:
 
 ```bash
-make -C batsignal install      # builds fullscreen_warning, used by batsignal -D
+make -C fullscreen_warning install   # builds fullscreen_warning, used by batsignal -D
 make -C xsecurelock install    # builds saver_battery, used as XSECURELOCK_SAVER
 make -C st install             # suckless st (submodule, edit config.h then rebuild)
 ```
@@ -34,7 +34,7 @@ Each Makefile uses `pkg-config` for X11/Xft/fontconfig flags and copies the bina
 - **GPG agent doubles as ssh-agent**: `bashrc` sets `SSH_AUTH_SOCK` to gpg-agent's socket and runs `gpgconf --launch gpg-agent`. Do not add a separate ssh-agent. `KEYID=0x22C0152F739C743D` (in `bash_defs.sh`) is the key used by `gpgencrypt`/`gpgdecrypt`.
 - **Git over SSH by default**: `git/config` rewrites `https://github.com/` → `git@github.com:` via `insteadOf`. Credentials for non-rewritten remotes go through `pass-git-helper` (see `pass/README.md`).
 - **X session bootstrap lives in `xprofile`, not `i3/config`**: the i3 config explicitly notes autostarts were moved out. Add session-wide daemons (dunst, nm-applet, emacs --daemon, xss-lock, batsignal, etc.) to `xprofile`.
-- **Screen lock chain**: `xss-lock` triggers `xsecurelock`, which uses the locally-built `saver_battery` as its saver module and `fullscreen_warning` (from `batsignal/`) as the low-battery alert. Breaking either C build breaks the lock screen UX.
+- **Screen lock chain**: `xss-lock` triggers `xsecurelock`, which uses the locally-built `saver_battery` as its saver module and `fullscreen_warning` (from `fullscreen_warning/`) as the low-battery alert. Breaking either C build breaks the lock screen UX. `fullscreen_warning` only closes on a deliberate key combo (`-k`, default `ctrl+shift+q`), not on any keystroke.
 - **Ansible playbook is a stub**: `ansible/playbook.yaml` is a hello-world ping — there is no real automation yet. The README's "TODO: learn ansible" is still accurate; don't assume Ansible is the deployment path.
 - **`pass-git-helper` path**: `git/config` references `/sbin/pass-git-helper`. On a fresh machine this needs `yay -S pass-git-helper` and the config symlink from `pass/README.md`.
 - **Restic profiles run as system schedules**: `desktop/restic/profiles.yaml` and `laptop/restic/profiles.yaml` install systemd timers via `resticprofile schedule`. The `run-before`/`run-after` hooks do `sudo -u joseph … notify-send` to surface backup status in the user session — keep `DISPLAY=:0` and `DBUS_SESSION_BUS_ADDRESS` set when editing.

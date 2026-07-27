@@ -88,7 +88,7 @@ cat <<EOF
 == manual steps (not automated, see linux.md + per-tool READMEs) ==
  - git submodule update --init --recursive
  - make -C st install          # terminal (fork, edit config.h)
- - make -C batsignal install   # fullscreen_warning, needed by lock/battery chain
+ - make -C fullscreen_warning install # needed by lock/battery chain
  - make -C xsecurelock install # saver_battery, needed by lock screen
  - yay -S pass-git-helper      # git/config expects /sbin/pass-git-helper
  - gpg: import private key from backup; public key is gnupg/$(basename "$CONFIG"/gnupg/*.asc)

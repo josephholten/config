@@ -6,12 +6,48 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <strings.h>
 #include <unistd.h>
 
 typedef struct {
   int width;
   int height;
 } MonitorSize;
+
+typedef struct {
+  unsigned int mods;
+  KeySym keysym;
+} KeyCombo;
+
+/* Parse a spec like "ctrl+shift+q" into a modifier mask plus keysym. The last
+   '+'-separated token is the key, everything before it must be a modifier. */
+int parse_key_combo(const char *spec, KeyCombo *combo) {
+    char buf[256];
+    if (strlen(spec) >= sizeof(buf)) return 0;
+    strcpy(buf, spec);
+
+    combo->mods = 0;
+    combo->keysym = NoSymbol;
+
+    char *save = NULL;
+    for (char *tok = strtok_r(buf, "+", &save); tok; tok = strtok_r(NULL, "+", &save)) {
+        if (!strcasecmp(tok, "ctrl") || !strcasecmp(tok, "control")) {
+            combo->mods |= ControlMask;
+        } else if (!strcasecmp(tok, "shift")) {
+            combo->mods |= ShiftMask;
+        } else if (!strcasecmp(tok, "alt") || !strcasecmp(tok, "mod1")) {
+            combo->mods |= Mod1Mask;
+        } else if (!strcasecmp(tok, "super") || !strcasecmp(tok, "mod4")) {
+            combo->mods |= Mod4Mask;
+        } else {
+            if (combo->keysym != NoSymbol) return 0;  /* more than one non-modifier */
+            combo->keysym = XStringToKeysym(tok);
+            if (combo->keysym == NoSymbol) return 0;
+        }
+    }
+
+    return combo->keysym != NoSymbol;
+}
 
 void get_monitor_size_where_mouse(Display *display, int screen, MonitorSize *monitor_size) {
     Window root = RootWindow(display, screen);
@@ -52,13 +88,16 @@ int main(int argc, char** argv) {
     GC gc;
 
     const char* message = "BATTERY CRITICALLY LOW";
-    const char* USAGE = "usage: %s [-m message] [-f font] [-b bg_color] [-t text_color] [-h]\n";
+    const char* USAGE = "usage: %s [-m message] [-f font] [-b bg_color] [-t text_color] [-k key_combo] [-h]\n"
+                        "  -k  combo that dismisses the warning, e.g. 'ctrl+shift+q' (default),\n"
+                        "      'ctrl+alt+Escape', 'super+Delete'. Modifiers: ctrl, shift, alt, super.\n";
     const char* font = "Liberation Mono";
     const char* color_str = "red";
     const char* tcolor_str = "white";
+    const char* key_str = "ctrl+shift+q";
 
     int opt;
-    while ((opt = getopt(argc, argv, "m:f:hb:t:")) != -1) {
+    while ((opt = getopt(argc, argv, "m:f:hb:t:k:")) != -1) {
       switch (opt) {
         case 'm':
           message = optarg;
@@ -75,12 +114,25 @@ int main(int argc, char** argv) {
         case 't':
           tcolor_str = optarg;
           break;
+        case 'k':
+          key_str = optarg;
+          break;
         default:
           fprintf(stderr, "warning: ignoring unrecognized option '%c'", opt);
           fprintf(stderr, USAGE, argv[0]);
           break;
       }
     }
+
+    KeyCombo dismiss;
+    if (!parse_key_combo(key_str, &dismiss)) {
+      fprintf(stderr, "ERROR: failed to parse key combo: %s\n", key_str);
+      fprintf(stderr, USAGE, argv[0]);
+      return 1;
+    }
+
+    char hint[320];
+    snprintf(hint, sizeof(hint), "press %s to dismiss", key_str);
 
     display = XOpenDisplay(NULL);
     if (display == NULL) {
@@ -157,6 +209,12 @@ int main(int argc, char** argv) {
       return 1;
     }
 
+    /* smaller face for the "press ... to dismiss" hint; optional, so a failure
+       here only costs us the hint, not the warning itself */
+    XftFont* hint_font = XftFontOpen(display, screen,
+      XFT_FAMILY, XftTypeString, font,
+      XFT_SIZE, XftTypeDouble, 20.0, NULL);
+
     XftColor xft_color;
     XftColorAllocName(display, visual, colormap, tcolor_str, &xft_color);
     XftDraw *xft_draw = XftDrawCreate(display, window, visual, colormap);
@@ -180,13 +238,28 @@ int main(int argc, char** argv) {
 
                 XftDrawStringUtf8(xft_draw, &xft_color, xft_font, x, y,
                                   (XftChar8 *)message, strlen(message));
+
+                if (hint_font) {
+                    XGlyphInfo hint_extents;
+                    XftTextExtentsUtf8(display, hint_font, (XftChar8 *)hint, strlen(hint), &hint_extents);
+
+                    XftDrawStringUtf8(xft_draw, &xft_color, hint_font,
+                                      (monitor.width - hint_extents.width) / 2,
+                                      y + 2 * hint_font->height,
+                                      (XftChar8 *)hint, strlen(hint));
+                }
             }
         } else if (event.type == KeyPress) {
-            break;
+            /* index 0 = unshifted keysym, so "ctrl+shift+q" matches XK_q */
+            KeySym pressed = XLookupKeysym(&event.xkey, 0);
+            unsigned int mods = event.xkey.state & (ControlMask | ShiftMask | Mod1Mask | Mod4Mask);
+
+            if (pressed == dismiss.keysym && mods == dismiss.mods) break;
         }
     }
 
     if (xft_font) XftFontClose(display, xft_font);
+    if (hint_font) XftFontClose(display, hint_font);
     XftDrawDestroy(xft_draw);
     XftColorFree(display, visual, colormap, &xft_color);
 
