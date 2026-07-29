@@ -63,6 +63,13 @@ link ssh/config                     ~/.ssh/config
 link gnupg/gpg.conf                 ~/.gnupg/gpg.conf
 link gnupg/scdaemon.conf            ~/.gnupg/scdaemon.conf
 
+echo "== systemd user units =="
+link mail/goimapnotify.service ~/.config/systemd/user/goimapnotify.service
+link mail/mbsync.service       ~/.config/systemd/user/mbsync.service
+link mail/mbsync.timer         ~/.config/systemd/user/mbsync.timer
+systemctl --user daemon-reload
+systemctl --user enable goimapnotify.service mbsync.timer
+
 echo "== scripts into ~/bin (xprofile/i3 expect these) =="
 link cluster-load/cluster-load             ~/bin/cluster-load
 link rofi/rofi-kblayout                    ~/bin/rofi-kblayout

@@ -1,0 +1,12 @@
+[Unit]
+Description=Fetch mail (mbsync) and reindex (notmuch)
+Documentation=file:%h/config/mail/README.md
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+# Same handler goimapnotify runs on IDLE. Syncs ALL folders, not just INBOX —
+# the channel's Patterns decides that, not the caller.
+ExecStart=%h/config/mail/on-new-mail.sh
+Environment=DISPLAY=:0

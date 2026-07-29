@@ -1,0 +1,22 @@
+[Unit]
+Description=IMAP IDLE watcher — triggers a mail sync the moment mail arrives
+Documentation=file:%h/config/mail/README.md
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/goimapnotify -conf %h/config/mail/goimapnotify.yaml
+
+# The expected failure mode is passwordCMD: `pass` needs gpg-agent, which
+# needs the Yubikey unlocked. At session start the card usually is not ready
+# yet, so the first attempts fail. Restart until it works instead of dying.
+Restart=always
+RestartSec=30
+
+# pinentry needs to know where to draw the PIN prompt. (notify-send does NOT
+# need X — it only talks to the session bus, which systemd --user provides.)
+Environment=DISPLAY=:0
+
+[Install]
+WantedBy=default.target

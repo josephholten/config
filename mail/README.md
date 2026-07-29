@@ -75,6 +75,52 @@ If step 2 fails:
 | `AUTHENTICATE` rejected | `User` form — try the bare login instead of the full address, or the server wants an app password |
 | unknown keyword `Master`/`SSLType` | you copied a pre-1.4 tutorial; this file uses `Far`/`Near` and `TLSType` |
 
+## Live delivery (IMAP IDLE)
+
+mbsync has **no IDLE support** — on its own it can only ever poll. So a small
+daemon holds the idle connection and pokes mbsync when something lands:
+
+```
+goimapnotify ──IDLE on INBOX──► mail/on-new-mail.sh
+                                  ├─ mbsync holten   (ALL folders)
+                                  ├─ notmuch new
+                                  └─ notify-send     (dunst)
+```
+
+**INBOX is only the trigger, not the scope.** `on-new-mail.sh` runs a plain
+`mbsync holten`, so Archives, Sent, Invoices and the rest all sync too — what
+gets synced is decided by `Patterns` in `mbsyncrc`, never by the caller.
+Watching INBOX alone keeps this to *one* IMAP connection; omitting `boxes`
+would open one IDLE connection per folder (~18), which hosts often refuse.
+
+Three user units, all symlinked by `install.sh`:
+
+| unit | |
+|---|---|
+| `goimapnotify.service` | the IDLE daemon, `Restart=always` |
+| `mbsync.service` | oneshot, runs the same handler |
+| `mbsync.timer` | fires it every 30 min as a backstop |
+
+`Restart=always` is doing real work: `passwordCMD` goes through `pass` →
+gpg-agent → Yubikey, and at session start the card usually isn't unlocked yet,
+so the first attempts fail. Without supervision the daemon would die at login
+and mail would silently stop.
+
+The timer exists because an IDLE connection can drop silently — suspend, NAT
+timeout, server-side reset. 30 min is deliberately slow; it's a safety net,
+not the primary path.
+
+```bash
+systemctl --user status goimapnotify        # is it connected?
+journalctl --user -u goimapnotify -f        # watch it react
+systemctl --user list-timers mbsync.timer   # when does the backstop fire?
+systemctl --user start mbsync.service       # force a sync now
+```
+
+`Environment=DISPLAY=:0` is for **pinentry**, so the Yubikey PIN prompt has
+somewhere to draw. `notify-send` doesn't need it — libnotify talks to the
+session bus, which `systemd --user` already provides.
+
 ## Reading mail in Emacs
 
 `emacs/init.el` has a `notmuch` block under the `SPC m` leader:

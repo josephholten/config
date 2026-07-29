@@ -1,0 +1,14 @@
+[Unit]
+Description=Periodic mail sync — backstop for a dropped IMAP IDLE connection
+
+[Timer]
+# goimapnotify handles the live case. This only catches what IDLE misses:
+# laptop suspend, NAT timeout, a silently dead connection. Hence the low
+# frequency — it is a safety net, not the primary path.
+OnBootSec=5min
+OnUnitActiveSec=30min
+# run once after waking/booting if the machine was off when a tick was due
+Persistent=true
+
+[Install]
+WantedBy=timers.target

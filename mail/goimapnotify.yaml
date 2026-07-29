@@ -1,0 +1,32 @@
+# goimapnotify — hold an IMAP IDLE connection open and react to new mail.
+#
+# Started by mail/goimapnotify.service. mbsync itself has no IDLE support, so
+# this is what makes delivery live rather than polled.
+#
+# Schema traps (goimapnotify 2.x):
+#   - the file is a top-level `configurations` LIST, even for one account
+#   - the key is passwordCMD, capital CMD (likewise hostCMD, usernameCMD)
+#   - `boxes` is a list of OBJECTS keyed by `mailbox`, not a list of strings
+
+configurations:
+  - alias: holten
+    host: imap.one.com
+    port: 993
+    tls: true
+    tlsOptions:
+      rejectUnauthorized: true
+      starttls: false
+    username: joseph@holten.com
+    # the same pass entry mbsyncrc and msmtprc use
+    passwordCMD: "pass mail/holten"
+    xoAuth2: false
+    # re-issue IDLE every 15 min; servers commonly drop idle connections
+    # somewhere around 30, and RFC 2177 suggests re-idling every 29
+    idleLogoutTimeout: 15
+    # INBOX only, so this holds ONE connection. Omitting `boxes` would watch
+    # all 18 folders — one IDLE connection each, which hosts often refuse.
+    # The handler runs a full `mbsync holten` anyway, so every folder still
+    # syncs; INBOX is just the trigger.
+    boxes:
+      - mailbox: INBOX
+        onNewMail: /home/joseph/config/mail/on-new-mail.sh
