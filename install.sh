@@ -58,6 +58,7 @@ link claude/settings.json           ~/.claude/settings.json
 link claude/statusline.sh           ~/.claude/statusline.sh
 link mail/mbsyncrc                  ~/.mbsyncrc
 link mail/notmuch-config            ~/.notmuch-config
+link mail/msmtprc                   ~/.msmtprc
 link ssh/config                     ~/.ssh/config
 link gnupg/gpg.conf                 ~/.gnupg/gpg.conf
 link gnupg/scdaemon.conf            ~/.gnupg/scdaemon.conf

@@ -59,7 +59,7 @@
   :after evil
   :ensure t
   :config
-  (evil-collection-init '(magit dired))
+  (evil-collection-init '(magit dired notmuch))
 )
 (use-package which-key
   :ensure t
@@ -247,6 +247,42 @@
     "[t" 'multi-vterm-prev
   )
   ("<f12>" 'multi-vterm-dedicated-toggle)
+)
+
+;; mail. :ensure nil -- Arch's notmuch package ships the elisp into
+;; /usr/share/emacs/site-lisp (already on load-path). Do NOT take this from
+;; MELPA: notmuch-emacs must match the notmuch CLI version, and pacman keeps
+;; them in lockstep. See mail/README.md for the mbsync side.
+(use-package notmuch
+  :ensure nil
+  :commands notmuch
+  :general
+  (leader-def 'normal
+    "m" '(:ignore t :which-key "mail")
+    "mm" 'notmuch
+    "ms" 'notmuch-search
+    "mc" 'notmuch-mua-new-mail
+    "mu" 'notmuch-poll-and-refresh-this-buffer
+  )
+  :config
+  ;; Send via msmtp (mail/msmtprc), not emacs' own smtpmail -- one credential
+  ;; path for both directions, and msmtp handles the pass lookup.
+  (setq send-mail-function 'sendmail-send-it
+        message-send-mail-function 'message-send-mail-with-sendmail
+        sendmail-program (executable-find "msmtp")
+        message-sendmail-envelope-from 'header
+        ;; drop a copy in the local Sent maildir; mbsync pushes it up
+        notmuch-fcc-dirs "holten/Sent")
+  ;; `notmuch new` on demand, so SPC m u refreshes the index from within emacs.
+  ;; It does not run mbsync -- fetch still happens outside (see mail/README.md).
+  (setq notmuch-show-logo nil
+        notmuch-search-oldest-first nil
+        notmuch-saved-searches
+        '((:name "inbox"  :key "i" :query "tag:inbox")
+          (:name "unread" :key "u" :query "tag:unread")
+          (:name "48h"    :key "t" :query "date:2d..")
+          (:name "sent"   :key "s" :query "folder:Sent or folder:\"Sent Items\"")
+          (:name "all"    :key "a" :query "*")))
 )
 
 (use-package doom-modeline

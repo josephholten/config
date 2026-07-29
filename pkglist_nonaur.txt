@@ -85,6 +85,7 @@ mons
 moreutils
 mosh
 mpv
+msmtp
 msr-tools
 nasm
 ncdu

@@ -75,28 +75,65 @@ If step 2 fails:
 | `AUTHENTICATE` rejected | `User` form — try the bare login instead of the full address, or the server wants an app password |
 | unknown keyword `Master`/`SSLType` | you copied a pre-1.4 tutorial; this file uses `Far`/`Near` and `TLSType` |
 
-## Widening, once the above works
+## Reading mail in Emacs
 
-`mbsyncrc` starts deliberately hobbled. Delete the `--- first-test bounds ---`
-block at the end of the file, which drops:
+`emacs/init.el` has a `notmuch` block under the `SPC m` leader:
 
-- `Sync Pull` → back to the default two-way sync, so local flag/move changes
-  reach the server
-- `Patterns "INBOX"` → all folders
-- `MaxMessages 200` / `ExpireUnread yes` → the whole mailbox. mbsync has **no
-  date filter**; message count is the only bound it offers, which is why "last
-  48h" was approximated as "newest 200". Removing the cap re-fetches whatever
-  was expired, so this is reversible.
+| key | |
+|---|---|
+| `SPC m m` | notmuch hello screen (saved searches) |
+| `SPC m s` | `notmuch-search` |
+| `SPC m c` | compose |
+| `SPC m u` | re-run `notmuch new` and refresh |
 
-Then:
+`SPC m u` only re-indexes; it does **not** fetch. Run `mbsync holten` first (or
+wait for the timer, once that exists).
+
+It uses `:ensure nil` on purpose. Arch's `notmuch` package installs the elisp
+into `/usr/share/emacs/site-lisp`, which is already on the load-path, and that
+guarantees notmuch-emacs matches the notmuch CLI version. Taking it from MELPA
+instead invites version skew between the two, which breaks in confusing ways.
+
+## Sending
+
+`mail/msmtprc` → `~/.msmtprc`, reading the *same* `pass mail/holten` entry as
+mbsync. Emacs sends through it via `message-send-mail-with-sendmail`; sent mail
+is filed into `~/mail/holten/Sent` by `notmuch-fcc-dirs`, and the next `mbsync`
+pushes it to the server.
+
+No password is stored in `msmtprc` (it uses `passwordeval`), which is why the
+file can be world-readable in the repo. Inline a literal `password` line and
+msmtp will refuse to run unless the file is `chmod 600`.
+
+Verify the host/port against one.com's current docs, then:
 
 ```bash
-mbsync -V holten && notmuch new
+echo "test body" | msmtp --debug --from=default -t you@somewhere-else.com
 ```
 
-If you also want read/unread state to round-trip, set
-`synchronize_flags=true` in `notmuch-config` — but only after `Sync Pull` is
-gone, otherwise the flags never leave the machine.
+## Widening, once the above works
+
+Already done — `Patterns` now takes all folders except trash/spam, and the
+one-way `Sync Pull` / `MaxMessages` bounds are gone. Kept for reference:
+
+- mbsync has **no date filter**. Message count (`MaxMessages`) is the only
+  bound it offers, which is why "last 48h" was originally approximated as
+  "newest 200". Expiry is reversible: raising or dropping the cap re-fetches.
+- `ExpireUnread yes` is required alongside `MaxMessages`, since the default
+  exempts unread mail from the cap entirely.
+- `Expunge` is left at its default `None`, so deleting mail locally flags it
+  rather than removing it from the server.
+
+To round-trip read/unread state to the server, set `synchronize_flags=true`
+in `notmuch-config`.
+
+Listing remote folders respects `Patterns`, so `mbsync -l` won't show folders
+you've excluded. To see everything the server actually has:
+
+```bash
+sed 's|^Patterns .*|Patterns "*"|' ~/.mbsyncrc > /tmp/probe.rc
+mbsync -c /tmp/probe.rc -l holten
+```
 
 ## Gotchas
 
