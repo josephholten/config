@@ -64,6 +64,7 @@ imv
 intel-oneapi-mkl
 inter-font
 iperf3
+isync
 iwd
 jq
 jre21-openjdk
@@ -94,6 +95,7 @@ networkmanager-openvpn
 nextcloud-client
 ninja
 nmap
+notmuch
 noto-fonts
 noto-fonts-emoji
 noto-fonts-extra

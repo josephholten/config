@@ -1,0 +1,50 @@
+# mbsync (isync) — pull IMAP into ~/mail as a Maildir.
+#
+# Symlinked to ~/.mbsyncrc by install.sh. Password comes from pass, which
+# goes through gpg-agent / the Yubikey — see mail/README.md.
+#
+# Written for isync >= 1.4 (Arch ships 1.5.x): the keywords are Far/Near and
+# TLSType. Most tutorials online still say Master/Slave and SSLType, which
+# this version does not accept.
+
+IMAPAccount holten
+Host        imap.one.com              # IMAP/Incoming server
+Port        993
+User        joseph@holten.com
+PassCmd     "pass mail/holten"
+TLSType     IMAPS
+CertificateFile /etc/ssl/certs/ca-certificates.crt
+
+IMAPStore holten-remote
+Account   holten
+
+MaildirStore holten-local
+Path       ~/mail/holten/
+Inbox      ~/mail/holten/INBOX
+SubFolders Verbatim
+
+Channel holten
+Far     :holten-remote:
+Near    :holten-local:
+Create  Near
+SyncState *
+# --- first-test bounds -------------------------------------------------
+# Delete the four settings below once the pipe is proven; see "Widening" in
+# README.md. NOTE: no blank line may separate them from the Channel header —
+# in mbsync an empty line ends a section, and these would then be parsed as
+# global keywords ("'Patterns' is not a recognized ... keyword").
+#
+# Sync Pull      one-way. Nothing local can ever reach the server, so a
+#                misconfiguration here cannot damage the remote mailbox.
+# Patterns       one folder to start.
+# MaxMessages    mbsync has NO date filter — count is the only bound it
+#                offers, so "last 48h" is approximated as "newest 200".
+# ExpireUnread   REQUIRED with MaxMessages: the default (no) exempts unread
+#                messages from the cap entirely, so a large unread backlog
+#                would sync in full anyway.
+#
+# Reversible: dropping MaxMessages re-fetches whatever was expired.
+Patterns     "INBOX"
+Sync         Pull
+MaxMessages  200
+ExpireUnread yes

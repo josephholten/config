@@ -55,7 +55,9 @@ echo "== single files (dirs hold unmanaged state, so link per file) =="
 link emacs/init.el                  ~/.config/emacs/init.el
 link emacs/dark-monochrome-theme.el ~/.config/emacs/dark-monochrome-theme.el
 link claude/settings.json           ~/.claude/settings.json
-link claude/statusline-command.sh   ~/.claude/statusline-command.sh
+link claude/statusline.sh           ~/.claude/statusline.sh
+link mail/mbsyncrc                  ~/.mbsyncrc
+link mail/notmuch-config            ~/.notmuch-config
 link ssh/config                     ~/.ssh/config
 link gnupg/gpg.conf                 ~/.gnupg/gpg.conf
 link gnupg/scdaemon.conf            ~/.gnupg/scdaemon.conf
@@ -91,6 +93,8 @@ cat <<EOF
  - make -C fullscreen_warning install # needed by lock/battery chain
  - make -C xsecurelock install # saver_battery, needed by lock screen
  - yay -S pass-git-helper      # git/config expects /sbin/pass-git-helper
+ - mail: pass insert mail/holten; fill in Host/User in mail/mbsyncrc;
+         mkdir -p ~/mail/holten; mbsync -l holten   (see mail/README.md)
  - gpg: import private key from backup; public key is gnupg/$(basename "$CONFIG"/gnupg/*.asc)
  - restic: resticprofile --config $HOST/restic/profiles.yaml schedule
  - wireguard: copy wireguard/jvpn.conf.template to /etc/wireguard, fill in keys (server only)

@@ -1,0 +1,32 @@
+# notmuch — index and search the Maildir that mbsync writes.
+#
+# Symlinked to ~/.notmuch-config by install.sh.
+#
+# Edit this file by hand. `notmuch setup` and `notmuch config set` rewrite the
+# config and can replace the symlink with a regular file; if that happens,
+# re-run install.sh.
+
+[database]
+# absolute, not ~ — notmuch does not expand it in all versions.
+# One directory above the per-account maildirs, so more accounts can be
+# added under ~/mail/ later and share one index (stored in ~/mail/.notmuch).
+path=/home/joseph/mail
+
+[user]
+name=Joseph Holten
+primary_email=joseph@holten.com
+
+[new]
+tags=unread;inbox;
+# mbsync's per-folder state files live inside the maildir (SyncState *).
+# Without this, notmuch tries to index them and errors on every run.
+ignore=.mbsyncstate;.mbsyncstate.new;.mbsyncstate.journal;.uidvalidity
+
+[search]
+exclude_tags=deleted;spam;
+
+[maildir]
+# false keeps notmuch strictly read-only against the maildir: it will not
+# rename files to record read/replied state. Flip to true once you want
+# unread state to round-trip back to the server (needs Sync All in mbsyncrc).
+synchronize_flags=false
