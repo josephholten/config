@@ -15,6 +15,22 @@ path=/home/joseph/mail
 [user]
 name=Joseph Holten
 primary_email=joseph@holten.com
+# Every other address that is also you. Without this, notmuch treats mail you
+# sent from KIT as mail from a stranger: threads show you as an author and
+# `notmuch new` never applies the sent-mail exclusion.
+# Semicolon-separated if more are added.
+#
+# joseph.holten@kit.edu is the address KIT actually puts on outgoing mail (206
+# sent / 492 received); np6630@kit.edu is the u-number alias and has never sent
+# anything (0 / 5). Both are needed. Everything built from `notmuch-user-emails'
+# silently skips whatever is missing here -- reply-all leaves you in the Cc, and
+# the emacs address book (`notmuch-address-book' in emacs/init.el) cannot see
+# anyone you only ever corresponded with under a missing address.
+#
+# NOT an identity: wellensfb-docs@lists.kit.edu also shows up as a From in the
+# Sent folder. It is a mailing list; adding it would make every list message
+# look like mail from you.
+other_email=np6630@kit.edu;joseph.holten@kit.edu
 
 [new]
 tags=unread;inbox;

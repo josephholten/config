@@ -39,3 +39,67 @@ Patterns * !Trash !"Trash/*" !"Deleted Items" !Spam !spam
 # Sync defaults to All (two-way). Expunge defaults to None, so deleting mail
 # locally flags it rather than removing it from the server — deliberate.
 
+# --- KIT ---------------------------------------------------------------
+# Second account. Its maildir sits beside holten's under ~/mail/, which is
+# what makes both share one notmuch index (database.path is ~/mail, one level
+# up — see notmuch-config).
+#
+# User is the KIT account name (np6630), not the address np6630@kit.edu.
+# The credential is `pass kit`, a top-level entry — NOT mail/kit, unlike
+# holten's. Host/Port are the SCC values; confirm with
+#   mbsync -l kit
+# which lists folders and transfers nothing.
+
+IMAPAccount kit
+Host        imap.kit.edu
+Port        993
+User        np6630
+PassCmd     "pass kit"
+# Required. AuthMechs defaults to `*`, and KIT's Exchange server advertises
+# NTLM, which mbsync then prefers over LOGIN — and it fails with
+#   AUTHENTICATE NTLM ... returned an error: AUTHENTICATE failed
+# Pinning LOGIN skips SASL negotiation entirely. Safe here because the whole
+# session is already inside TLS (IMAPS on 993), so the password is never on
+# the wire in the clear.
+AuthMechs   LOGIN
+# Also required. With pipelining on, this server produces
+#   IMAP error: malformed FETCH response ...: unexpected attribute
+# partway through the first real sync. mbsync(1) documents PipelineDepth as
+# existing partly "to spare flaky servers like M$ Exchange" — 1 disables
+# pipelining entirely. Slower, but it is the difference between syncing and
+# not. Do not raise it without re-testing a full `mbsync -V kit`.
+PipelineDepth 1
+TLSType     IMAPS
+CertificateFile /etc/ssl/certs/ca-certificates.crt
+
+IMAPStore kit-remote
+Account   kit
+
+MaildirStore kit-local
+Path       ~/mail/kit/
+Inbox      ~/mail/kit/INBOX
+SubFolders Verbatim
+
+Channel kit
+Far     :kit-remote:
+Near    :kit-local:
+Create  Near
+SyncState *
+# Exchange, German locale, so none of holten's English exclusions match here —
+# the names come from `mbsync -l kit`, don't guess them. Beyond trash/junk this
+# also drops the non-mail Exchange folders (calendar, contacts, tasks, notes,
+# journal): they are not mail, notmuch cannot index them usefully, and
+# Postausgang/Outbox is a send queue that has no business being mirrored.
+# (one line — mbsyncrc has no backslash line-continuation)
+# There are TWO trash folders (Exchange's "Gelöschte Elemente" and a plain
+# "Trash" left by some earlier client) and likewise two Sent — same duplication
+# holten has. Both trashes are dropped; both Sents are kept, since either may
+# hold real mail.
+Patterns * !"Gelöschte Elemente" !Trash !"Trash/*" !"Junk-E-Mail" !Postausgang !Kalender !"Kalender/*" !Kontakte !Aufgaben !Notizen !Journal
+
+# A group, so one name syncs everything. `mbsync all` == `mbsync -a` here, but
+# naming it keeps on-new-mail.sh and any manual run pointed at one thing.
+# NOTE: adding a future account means adding it here too.
+Group all
+Channel holten
+Channel kit

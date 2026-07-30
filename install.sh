@@ -103,6 +103,8 @@ cat <<EOF
  - yay -S pass-git-helper      # git/config expects /sbin/pass-git-helper
  - mail: pass insert mail/holten; fill in Host/User in mail/mbsyncrc;
          mkdir -p ~/mail/holten; mbsync -l holten   (see mail/README.md)
+ - mail (kit): pass insert kit   (top-level entry, not mail/kit);
+         mkdir -p ~/mail/kit; mbsync -l kit
  - gpg: import private key from backup; public key is gnupg/$(basename "$CONFIG"/gnupg/*.asc)
  - restic: resticprofile --config $HOST/restic/profiles.yaml schedule
  - wireguard: copy wireguard/jvpn.conf.template to /etc/wireguard, fill in keys (server only)

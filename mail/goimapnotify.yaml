@@ -29,4 +29,24 @@ configurations:
     # syncs; INBOX is just the trigger.
     boxes:
       - mailbox: INBOX
-        onNewMail: /home/joseph/config/mail/on-new-mail.sh
+        onNewMail: /home/joseph/config/mail/on-new-mail.sh holten
+
+  - alias: kit
+    host: imap.kit.edu
+    port: 993
+    tls: true
+    tlsOptions:
+      rejectUnauthorized: true
+      starttls: false
+    # the KIT account name, same value as User in mbsyncrc — not the address
+    username: np6630
+    # top-level pass entry, not mail/kit like holten's
+    passwordCMD: "pass kit"
+    xoAuth2: false
+    idleLogoutTimeout: 15
+    # Two accounts = two IDLE connections from this one process, each waking
+    # only its own mbsync channel (the argument to on-new-mail.sh). The timer
+    # in mbsync.service passes no argument and so covers both.
+    boxes:
+      - mailbox: INBOX
+        onNewMail: /home/joseph/config/mail/on-new-mail.sh kit
