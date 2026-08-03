@@ -47,7 +47,6 @@ Host uc3
     User ka_np6630
     IdentityFile ~/.ssh/id_ed25519_sk_rk
     IdentitiesOnly yes
-    ControlPersist 4h
 
 Host *
     ControlMaster auto
