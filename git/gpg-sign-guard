@@ -1,0 +1,30 @@
+#!/bin/sh
+# git's gpg.program — a thin wrapper that fails fast instead of blinking.
+#
+# The signing subkey is on a Yubikey with `set-touch sig on`, so a commit needs
+# a physical touch. An unattended caller that forgets --no-gpg-sign otherwise
+# gets 62 seconds of a blinking key followed by "gpg: signing failed: Timeout",
+# which is slow and says nothing about what to do instead.
+#
+# So: if we can tell nobody is there to touch it, refuse immediately and say
+# why. Verification is never blocked — it needs no private key and no touch,
+# and an agent still has to be able to run `git log --show-signature`.
+
+for arg in "$@"; do
+    case "$arg" in
+        --verify|--batch-verify) exec gpg "$@" ;;
+    esac
+done
+
+if [ -n "${CLAUDECODE:-}" ]; then
+    cat >&2 <<'MSG'
+gpg-sign-guard: refusing to sign — no human present to touch the Yubikey.
+
+commit.gpgsign is true globally and the signing key requires physical presence,
+so this would have hung for ~60s and then failed. Commit with --no-gpg-sign and
+leave signing to Joseph before the push. See CLAUDE.md.
+MSG
+    exit 1
+fi
+
+exec gpg "$@"

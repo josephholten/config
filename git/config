@@ -37,3 +37,5 @@
 	# on https. A private repo does need credentials to fetch — clone those with
 	# a git@ URL from the start and this rewrite never applies to them.
 	pushInsteadOf = https://github.com/
+[gpg]
+	program = /home/joseph/config/git/gpg-sign-guard
