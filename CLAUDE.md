@@ -8,11 +8,23 @@ Joseph Holten's personal Linux dotfiles and config scripts, deployed by symlinki
 
 Target system: Arch Linux + X11 + i3 + Emacs + st (suckless terminal). Some configs are host-specific (`desktop/`, `laptop/`, `phone/`, `tablet/`) — the same dotfile under different roots gets symlinked depending on the machine.
 
+## Committing (read before running git commit)
+
+`commit.gpgsign` and `tag.gpgsign` are **true globally**, and the signing subkey lives on a Yubikey with `set-touch sig on`. Every signature costs a physical touch. That is deliberate: a commit cannot be authored in Joseph's name unless he is at the machine.
+
+So an agent **cannot sign**, and a plain `git commit` will hang waiting for a touch that is not coming. Rules:
+
+- Commit with `git commit --no-gpg-sign`. Never disable signing in config to work around this, and never suggest moving the key off the Yubikey.
+- **Never push.** Signing happens before the push, and it is Joseph's to do — pushing unsigned work removes his chance to sign it without rewriting published history.
+- Say plainly in the summary that the commits are unsigned and need signing.
+
+Joseph signs a range afterwards with `git rebase --exec 'git commit --amend --no-edit -S' <base>` (one touch per commit), or squashes first for one touch. Both rewrite SHAs, which is exactly why this has to happen before anything is pushed.
+
 ## Layout conventions
 
 - Top-level files (`bashrc`, `vimrc`, `xinitrc`, `xprofile`, `Xresources`, `latexmkrc`) are symlinked into `$HOME` as dotfiles.
 - Top-level directories named after a tool (`i3/`, `i3status/`, `git/`, `gnupg/`, `rofi/`, `zathura/`, `ssh/`, `matplotlib/`, `emacs/`, `claude/`, …) hold that tool's config and are symlinked into `~/.config/<tool>/` (or the tool's expected path).
-- `mail/` holds the mbsync + notmuch configs only. Mail data, sync state and the notmuch index all live in `~/mail/`, which is outside this repo.
+- `mail/` holds the mbsync + notmuch configs only. Mail data and sync state live in `/var/lib/mail` (owned by the `mailsync` user, `~/mail` is a symlink to it) and the notmuch index in `~/.local/state/notmuch` — all outside this repo. `mail/mailsync/` is deployed with `sudo`, not symlinked by `install.sh`.
 - `desktop/` and `laptop/` contain host-specific variants (currently `autorandr/` profiles and `restic/` backup profiles). Don't merge them — they intentionally diverge per machine.
 - `phone/` and `tablet/` hold minimal `bashrc`/`vimrc` variants for Termux-style environments.
 - `bash_defs.sh` is sourced from `bashrc`; put PATH exports, aliases, and shell functions there rather than in `bashrc` itself.

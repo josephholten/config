@@ -7,11 +7,19 @@
 	signingkey = 9DAD40D0979D8CF0
 
 [commit]
-	# Opt-in, not automatic: `set-touch sig on` means every signed commit needs
-	# a physical touch, and a rebase of twenty commits would want twenty. Sign
-	# deliberately with `git commit -S`, or turn it on for one repo with
-	#   git config commit.gpgsign true
-	gpgsign = false
+	# On everywhere. `set-touch sig on` means one physical touch per commit —
+	# that is the point, not a side effect: a commit cannot be authored in your
+	# name without you being at the machine.
+	#
+	# The corollary is that anything unattended CANNOT commit: an agent, a
+	# script, a rebase --exec over twenty commits will each block on a touch
+	# that is not coming. Those must pass --no-gpg-sign and leave signing to a
+	# human before the push. See CLAUDE.md.
+	gpgsign = true
+
+[tag]
+	# Same reasoning; tags are rarer, so the touch is cheaper still.
+	gpgsign = true
 [init]
 	defaultBranch = master
 [filter "lfs"]
