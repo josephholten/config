@@ -1,6 +1,17 @@
 [user]
 	email = joseph@holten.com
 	name = Joseph Holten
+	# The [S] subkey on the Yubikey, not the [C] primary (84D1 5BD8 …), which
+	# stays offline and only certifies. Expires 2027-04-10 — signing starts
+	# failing that day unless the expiry is extended first.
+	signingkey = 9DAD40D0979D8CF0
+
+[commit]
+	# Opt-in, not automatic: `set-touch sig on` means every signed commit needs
+	# a physical touch, and a rebase of twenty commits would want twenty. Sign
+	# deliberately with `git commit -S`, or turn it on for one repo with
+	#   git config commit.gpgsign true
+	gpgsign = false
 [init]
 	defaultBranch = master
 [filter "lfs"]
@@ -13,4 +24,8 @@
 [core]
   excludesfile = ~/config/git/ignore
 [url "git@github.com:"]
-	insteadOf = https://github.com/
+	# pushInsteadOf, not insteadOf: push needs credentials in any case, so it
+	# always goes over ssh, while fetch of a public repo needs none and is left
+	# on https. A private repo does need credentials to fetch — clone those with
+	# a git@ URL from the start and this rewrite never applies to them.
+	pushInsteadOf = https://github.com/
