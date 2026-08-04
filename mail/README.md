@@ -1,44 +1,125 @@
-# mail — terminal-first email: mbsync → ~/mail → notmuch
+# mail — terminal-first email: mbsync → /var/lib/mail → notmuch
 
-Three independent pieces, no daemon and no mail client:
+Three independent pieces, no mail client — split across **two Unix users**,
+which is the first thing to understand here:
 
 ```
-one.com ──mbsync holten──► ~/mail/holten/{INBOX,…}   Maildir
-KIT     ──mbsync kit─────► ~/mail/kit/{INBOX,…}      Maildir
-                              │
+        ─── as mailsync ────────────────────────────────────────
+one.com ──mbsync holten──► /var/lib/mail/holten/{INBOX,…}  Maildir
+KIT     ──mbsync kit─────► /var/lib/mail/kit/{INBOX,…}     Maildir
+                              │  stamp file
+        ─── as joseph ─────────┼────────────────────────────────
                         notmuch new
                               │
-                      ~/mail/.notmuch/               ONE Xapian index
+                  ~/.local/state/notmuch/     ONE Xapian index
                               │
                       $ notmuch search …
 ```
 
-Two accounts, one index. That is the whole reason `database.path` is `~/mail`
-and not `~/mail/holten`: searches, threads and tags span both accounts, and
-`notmuch search from:x` doesn't care which server the mail came from. The
-accounts stay separate only where they must — credentials, Sent folder, and
-which server a reply goes out through.
+Two accounts, one index. That is the whole reason `database.mail_root` is
+`/var/lib/mail` and not `/var/lib/mail/holten`: searches, threads and tags span
+both accounts, and `notmuch search from:x` doesn't care which server the mail
+came from. The accounts stay separate only where they must — credentials, Sent
+folder, and which server a reply goes out through.
 
-Configs live here and are symlinked out by `install.sh`. **All mail data and
-sync state lives under `~/mail/`, which is not part of this repo** — nothing
-here needs a `.gitignore` entry.
+**Mail data lives under `/var/lib/mail`, not in this repo and not in `$HOME`.**
+`~/mail` is a symlink to it for convenience. Nothing here needs a `.gitignore`
+entry.
 
-Sending mail (msmtp), a TUI (aerc/neomutt) and Emacs integration are
-deliberately not set up yet. See "Next steps".
+Only the joseph-side configs are symlinked out by `install.sh`
+(`notmuch-config`, `msmtprc`, `mail-index.*`). Everything under `mailsync/`
+is deployed with `sudo` — see "Deploying the mailsync side".
+
+## Why two users
+
+The IMAP password is also the account password: one.com and KIT offer no
+app-specific credential, so leaking it means account takeover, not just mail
+access. Anything running as joseph — a compromised dependency, a shell script,
+an AI agent with a terminal — can read any file joseph can read. So the
+credential does not live anywhere joseph can reach:
+
+| | owner | mode | joseph |
+|---|---|---|---|
+| `/var/lib/mailsync/creds/{holten,kit}` | `mailsync:mailsync` | `0600` | **cannot read** |
+| `/var/lib/mailsync/{mbsyncrc,goimapnotify.yaml}` | `mailsync:mailsync` | `0640` | cannot read |
+| `/var/lib/mailsync/pub/last-sync` | `mailsync:mail-ro` | `0640` | reads |
+| `/var/lib/mail/**` | `mailsync:mail-ro` | `2750` / `0640` | reads only |
+
+Joseph is in `mail-ro`; `mailsync` is not a group joseph belongs to. Read-only
+on the maildir is enough because `synchronize_flags=false` — notmuch never
+renames a file, and `rename(2)` is the only write mail indexing would need.
+
+The credential is stored **twice**: this `0600` copy for unattended fetching,
+and the `pass` entry for interactive sending via msmtp. Same secret, two
+protections matched to two usage patterns — a background sync cannot wait for a
+Yubikey touch, and an interactive send can.
+
+Sending (msmtp) still runs as joseph out of `pass`, deliberately. See "Sending".
 
 ## Install
 
 ```bash
-sudo pacman -S isync notmuch
+sudo pacman -S isync notmuch goimapnotify
 pass insert mail/holten          # the IMAP password
 pass insert kit                  # KIT — top-level entry, not mail/kit
-mkdir -p ~/mail/holten ~/mail/kit
-~/config/install.sh              # links mbsyncrc + notmuch-config
+~/config/install.sh              # links notmuch-config, msmtprc, mail-index.*
 ```
 
+Then the `mailsync` side, below — the maildir is created by that, not by
+`mkdir` in `$HOME`.
+
 The two accounts name their credentials inconsistently — `pass mail/holten`
-but `pass kit`. That is the existing store layout, not a typo; `PassCmd` /
-`passwordCMD` / `passwordeval` in the three configs must match it.
+but `pass kit`. That is the existing store layout, not a typo; `passwordeval`
+in `msmtprc` and the credential **filenames** under
+`/var/lib/mailsync/creds/` must match it.
+
+## Deploying the mailsync side
+
+One-time, needs `sudo`. The credential copies are the only step that must be
+done by hand — deliberately, since the whole design rests on nothing automated
+ever handling them.
+
+```bash
+# 1. user, group, directories
+sudo groupadd -r mail-ro
+sudo useradd -r -m -d /var/lib/mailsync -s /usr/bin/nologin mailsync
+sudo usermod -aG mail-ro mailsync
+sudo usermod -aG mail-ro joseph                 # log out and back in after this
+sudo chgrp mail-ro /var/lib/mailsync && sudo chmod 0750 /var/lib/mailsync
+sudo install -d -o mailsync -g mailsync -m 0700 /var/lib/mailsync/creds
+sudo install -d -o mailsync -g mail-ro  -m 2750 /var/lib/mailsync/pub
+sudo install -d -o mailsync -g mail-ro  -m 2750 /var/lib/mail
+
+# 2. credentials — pre-created 0600 so the secret never exists at a looser mode
+sudo install -o mailsync -g mailsync -m 0600 /dev/null /var/lib/mailsync/creds/holten
+sudo install -o mailsync -g mailsync -m 0600 /dev/null /var/lib/mailsync/creds/kit
+pass mail/holten | head -1 | tr -d '\n' | sudo tee /var/lib/mailsync/creds/holten >/dev/null
+pass kit         | head -1 | tr -d '\n' | sudo tee /var/lib/mailsync/creds/kit    >/dev/null
+
+# 3. configs, handler, units
+cd ~/config/mail
+sudo install -d -o root -g root -m 0755 /usr/local/lib/mailsync
+sudo install -o root -g root -m 0755 mailsync/fetch.sh /usr/local/lib/mailsync/fetch.sh
+sudo install -o mailsync -g mailsync -m 0640 mailsync/mbsyncrc          /var/lib/mailsync/mbsyncrc
+sudo install -o mailsync -g mailsync -m 0640 mailsync/goimapnotify.yaml /var/lib/mailsync/goimapnotify.yaml
+sudo install -o root -g root -m 0644 mailsync/mbsync.service       /etc/systemd/system/
+sudo install -o root -g root -m 0644 mailsync/mbsync.timer         /etc/systemd/system/
+sudo install -o root -g root -m 0644 mailsync/goimapnotify.service /etc/systemd/system/
+sudo systemctl daemon-reload
+```
+
+`tr -d '\n'` matters: `PassCmd` is `cat`, and a trailing newline would be sent
+as part of the password.
+
+Verify the boundary actually holds before going further — this failing is the
+entire point of the exercise:
+
+```bash
+cat /var/lib/mailsync/creds/holten     # must fail: Permission denied
+ls  /var/lib/mailsync/creds/           # must fail: Permission denied
+ls  /var/lib/mail/holten/              # must succeed
+touch /var/lib/mail/holten/x           # must fail: read-only for joseph
+```
 
 | | holten | kit |
 |---|---|---|
@@ -57,21 +138,25 @@ this repo**, tracked, as an encrypted blob. That is the existing pattern here
 
 Each step isolates one failure mode, so a failure tells you what broke.
 
+Everything that touches a credential now runs as `mailsync`, so these are
+`sudo -u mailsync` rather than plain commands. Joseph cannot run them: the
+config and the credential are both unreadable to him, by design.
+
 ```bash
-# 1. credential works standalone (Yubikey must be plugged in; PIN once per session)
-pass mail/holten
+# 1. config parses — no network, no credential
+mbsync -c mail/mailsync/mbsyncrc -l nosuchchannel
 
 # 2. THE key test: lists remote folders, transfers no mail.
 #    Proves DNS + TLS + PassCmd + login all at once.
-mbsync -l holten
+sudo -u mailsync mbsync -c /var/lib/mailsync/mbsyncrc -l holten
 
-# 3. bounded fetch, verbose
-mbsync -V holten
+# 3. fetch, verbose
+sudo -u mailsync mbsync -c /var/lib/mailsync/mbsyncrc -V holten
 
-# 4. mail actually landed
-ls ~/mail/holten/INBOX/cur | wc -l     # expect <= ~200
+# 4. mail actually landed (joseph can read the maildir)
+ls /var/lib/mail/holten/INBOX/cur | wc -l
 
-# 5. index it
+# 5. index it — as joseph, the index is his
 notmuch new                            # expect "Added N messages", no errors
 
 # 6. search
@@ -88,15 +173,20 @@ If step 2 fails:
 
 | symptom | cause |
 |---|---|
-| `pass mail/holten` prints nothing | Yubikey not plugged in, or gpg-agent has no pinentry (`export GPG_TTY=$(tty)`) |
+| `Permission denied` on the config | you ran it as joseph, not `sudo -u mailsync` |
+| `AUTHENTICATE` rejected, credentials known good | trailing newline in the credential file — rewrite it with `tr -d '\n'` |
 | host unreachable / timeout | wrong `Host` or `Port` |
 | certificate error | wrong `CertificateFile`; for a private CA point it at that single PEM. For a STARTTLS-only server use `Port 143` + `TLSType STARTTLS` |
 | `AUTHENTICATE` rejected | `User` form — try the bare login instead of the full address, or the server wants an app password |
 | unknown keyword `Master`/`SSLType` | you copied a pre-1.4 tutorial; this file uses `Far`/`Near` and `TLSType` |
 
-Run the same six steps for `kit` — `pass kit`, `mbsync -l kit`, `mbsync -V
-kit`, and so on. `User` there is already the account name (`np6630`), which is
-what KIT wants; putting the address in would give `AUTHENTICATE rejected`.
+Run the same steps for `kit`. `User` there is already the account name
+(`np6630`), which is what KIT wants; putting the address in would give
+`AUTHENTICATE rejected`.
+
+Note there is no longer a "does `pass` work" step: the fetch path does not
+touch `pass`, gpg-agent, or the Yubikey at all. That is what makes it able to
+run unattended, and it is why `pass` can now require a touch per use.
 
 ## Live delivery (IMAP IDLE)
 
@@ -104,14 +194,20 @@ mbsync has **no IDLE support** — on its own it can only ever poll. So a small
 daemon holds the idle connection and pokes mbsync when something lands:
 
 ```
-goimapnotify ──IDLE on holten INBOX──► on-new-mail.sh holten
-             ──IDLE on kit    INBOX──► on-new-mail.sh kit
-                                         ├─ mbsync <that channel>  (ALL folders)
-                                         ├─ notmuch new
-                                         └─ notify-send            (dunst)
+as mailsync ─────────────────────────────────────────────────────────
+goimapnotify ──IDLE on holten INBOX──► fetch.sh holten
+             ──IDLE on kit    INBOX──► fetch.sh kit
+                                         ├─ mbsync <channel>  (ALL folders)
+                                         └─ write pub/last-sync   ← the signal
+                                                    │
+as joseph ─────────────────────────────────────────┼─────────────────
+                              mail-index.path (inotify) ◄┘
+                                         └─► index-and-notify.sh
+                                               ├─ notmuch new
+                                               └─ notify-send   (dunst)
 ```
 
-**INBOX is only the trigger, not the scope.** `on-new-mail.sh` runs a plain
+**INBOX is only the trigger, not the scope.** `fetch.sh` runs a plain
 `mbsync <channel>`, so Archives, Sent, Invoices and the rest all sync too —
 what gets synced is decided by `Patterns` in `mbsyncrc`, never by the caller.
 Watching INBOX alone keeps this to *one* IMAP connection per account; omitting
@@ -121,33 +217,68 @@ The channel is an **argument**, so KIT mail doesn't drag holten through a sync
 and vice versa. With no argument the script falls back to the `all` group,
 which is how the timer covers both accounts in one run.
 
-Three user units, all symlinked by `install.sh`:
+### Why a stamp file
+
+The two halves run under different users, so they are supervised by different
+systemd managers — one system, one per-user. `After=` / `Requires=` cannot
+express a dependency across that line, so the coupling has to be **data**:
+`fetch.sh` writes `/var/lib/mailsync/pub/last-sync` when it finishes, and
+`mail-index.path` watches that file with inotify. Neither side waits on the
+other, which is what makes an indeterminate sync duration a non-issue.
+
+Three details that are easy to get wrong:
+
+- It writes **content**, not `touch`. `touch` only updates mtime (`IN_ATTRIB`);
+  a real write gives `IN_CLOSE_WRITE`, which is what `PathChanged=` catches.
+- `PathChanged=`, not `PathExists=`. The latter is level-triggered and would
+  re-fire forever unless the handler deleted the stamp.
+- The stamp carries mbsync's **exit code**. `mailsync` has no session bus, so
+  it cannot call `notify-send` itself — a failed fetch reaches a screen only
+  because joseph's half reads the code out of the stamp and reports it.
+
+`.path` units are edge-triggered and cannot fire for a sync that happened while
+you were logged out, so `mail-index.service` is *also* `WantedBy=default.target`
+and runs once at login.
+
+### Units
+
+Three system units, deployed with `sudo` (not `install.sh`):
 
 | unit | |
 |---|---|
 | `goimapnotify.service` | the IDLE daemon, `Restart=always` |
-| `mbsync.service` | oneshot, runs the same handler |
+| `mbsync.service` | oneshot, runs `fetch.sh` with no argument |
 | `mbsync.timer` | fires it every 30 min as a backstop |
 
-`Restart=always` is doing real work: `passwordCMD` goes through `pass` →
-gpg-agent → Yubikey, and at session start the card usually isn't unlocked yet,
-so the first attempts fail. Without supervision the daemon would die at login
-and mail would silently stop.
+Two user units, symlinked by `install.sh`:
+
+| unit | |
+|---|---|
+| `mail-index.path` | watches the stamp file |
+| `mail-index.service` | `notmuch new` + `notify-send` |
+
+`Restart=always` is for network drops and servers closing an IDLE connection
+uncleanly. It used to exist because `passwordCMD` needed the Yubikey unlocked
+at session start; that failure mode is gone, along with `Environment=DISPLAY=:0`
+— nothing on the `mailsync` side draws a pinentry prompt anymore.
 
 The timer exists because an IDLE connection can drop silently — suspend, NAT
 timeout, server-side reset. 30 min is deliberately slow; it's a safety net,
 not the primary path.
 
 ```bash
-systemctl --user status goimapnotify        # is it connected?
-journalctl --user -u goimapnotify -f        # watch it react
-systemctl --user list-timers mbsync.timer   # when does the backstop fire?
-systemctl --user start mbsync.service       # force a sync now
+systemctl status goimapnotify               # is it connected?
+journalctl -u goimapnotify -f               # watch it react
+systemctl list-timers mbsync.timer          # when does the backstop fire?
+sudo systemctl start mbsync.service         # force a sync now
+systemctl --user status mail-index.path     # active (waiting) = armed
+journalctl --user -u mail-index.service -n 20
+cat /var/lib/mailsync/pub/last-sync         # "<unix-ts> <exit-code> <channels>"
 ```
 
-`Environment=DISPLAY=:0` is for **pinentry**, so the Yubikey PIN prompt has
-somewhere to draw. `notify-send` doesn't need it — libnotify talks to the
-session bus, which `systemd --user` already provides.
+The units are **system** units now, so `systemctl` without `--user` — a habit
+worth rebuilding, since `systemctl --user status mbsync` will just say the unit
+does not exist.
 
 ## Reading mail in Emacs
 
@@ -171,8 +302,9 @@ it shadows plain `r`/`R` in normal state:
 | `c c` | compose |
 | `C-c C-c` | send (in the compose buffer; `C-c C-k` abandons) |
 
-`SPC m u` only re-indexes; it does **not** fetch. Run `mbsync holten` first (or
-wait for the timer, once that exists).
+`SPC m u` only re-indexes; it does **not** fetch — and joseph can no longer
+fetch at all. Force one with `sudo systemctl start mbsync.service`, or wait for
+IDLE or the 30 min timer.
 
 It uses `:ensure nil` on purpose. Arch's `notmuch` package installs the elisp
 into `/usr/share/emacs/site-lisp`, which is already on the load-path, and that
@@ -283,9 +415,15 @@ Listing remote folders respects `Patterns`, so `mbsync -l` won't show folders
 you've excluded. To see everything the server actually has:
 
 ```bash
-sed 's|^Patterns .*|Patterns "*"|' ~/.mbsyncrc > /tmp/probe.rc
-mbsync -c /tmp/probe.rc -l holten
+sed 's|^Patterns .*|Patterns "*"|' ~/config/mail/mailsync/mbsyncrc > /tmp/probe.rc
+sudo -u mailsync mbsync -c /tmp/probe.rc -l holten
+rm /tmp/probe.rc
 ```
+
+It has to run as `mailsync` — the config's `PassCmd` reads a file joseph
+cannot open. Run it as joseph and you get `Permission denied`, not a folder
+list. (`sudo -u` is a plain process, so the units' `PrivateTmp=` does not
+apply here and `/tmp` is fine.)
 
 ## Gotchas
 
@@ -296,21 +434,27 @@ mbsync -c /tmp/probe.rc -l holten
   `Channel` block contiguous.
 - **isync >= 1.4 renamed everything.** `Master`/`Slave` → `Far`/`Near`,
   `SSLType` → `TLSType`. Arch ships 1.5.x. Most blog posts predate this.
-- **Check the config parses without hitting the network**: `mbsync -l
-  nosuchchannel`. It reads the whole file, then errors only about the unknown
-  channel — any real parse error shows up first, with a line number.
+- **Check the config parses without hitting the network or a credential**:
+  `mbsync -c mail/mailsync/mbsyncrc -l nosuchchannel`. It reads the whole file,
+  then errors only about the unknown channel — any real parse error shows up
+  first, with a line number. This is the one mbsync command joseph can still
+  run, since it never gets as far as `PassCmd`.
 - **`notmuch config set` and `notmuch setup` rewrite the config file** and can
   replace the symlink with a regular file. Edit `notmuch-config` by hand; if a
   command does clobber it, re-run `install.sh`.
 - **`new.ignore` is not optional.** mbsync keeps its state files inside the
   maildir (`SyncState *`), and notmuch will try to index them and error on
   every run without the ignore list.
-- **The notmuch database path is `~/mail`, one level above `~/mail/holten`**,
-  which is what lets holten and kit share one index. A new account only has to
-  put its maildir under `~/mail/` to join it — nothing in `notmuch-config`
-  enumerates accounts.
-- **Rebuilding the index is free and safe**: `rm -rf ~/mail/.notmuch &&
-  notmuch new`. It never touches the mail itself.
+- **`notmuch-config` uses the split form**: `database.mail_root` is
+  `/var/lib/mail` (what mailsync writes) and `database.path` is
+  `~/.local/state/notmuch` (the index, which joseph owns). They must stay
+  separate — an index inside the maildir would sit in a tree joseph cannot
+  write. `mail_root` being one level above `/var/lib/mail/holten` is what lets
+  holten and kit share one index; a new account only has to put its maildir
+  under `/var/lib/mail/` to join it, nothing enumerates accounts.
+- **Rebuilding the index is free and safe**: `rm -rf ~/.local/state/notmuch &&
+  notmuch new`. It never touches the mail itself, which is just as well —
+  joseph could not damage the maildir if he tried.
 - **A new account touches six files, not one.** See below — forgetting
   `notmuch-config` or `notmuch-fcc-dirs` fails quietly rather than loudly.
 
@@ -320,24 +464,46 @@ mbsync -c /tmp/probe.rc -l holten
 
 | file | what to add |
 |---|---|
-| `mbsyncrc` | `IMAPAccount` / `IMAPStore` / `MaildirStore` / `Channel` blocks, plus the channel name in the `Group all` block |
-| `goimapnotify.yaml` | another entry under `configurations:`, with `onNewMail: …/on-new-mail.sh <channel>` |
+| `mailsync/mbsyncrc` | `IMAPAccount` / `IMAPStore` / `MaildirStore` / `Channel` blocks, plus the channel name in the `Group all` block. `Path`/`Inbox` absolute under `/var/lib/mail/`, `PassCmd` a `cat` of the new credential file |
+| `mailsync/goimapnotify.yaml` | another entry under `configurations:`, with `onNewMail: /usr/local/lib/mailsync/fetch.sh <channel>` |
 | `msmtprc` | an `account` block **per sending address**, aliases included; leave `account default : holten` last |
 | `notmuch-config` | the address in `other_email` (semicolon-separated for more than one) |
 | `emacs/init.el` | a `notmuch-fcc-dirs` pair, before the `""` catch-all |
-| `install.sh` | the manual-steps note (`pass insert`, `mkdir`) |
+| `install.sh` | the manual-steps note |
 
-Plus `pass insert <entry>` and `mkdir -p ~/mail/<acct>`. The pass entry lands
-in `pass/password-store/` **inside this repo**, tracked, so it needs a commit
-like any other file.
+Plus, outside the repo:
 
-Only `mbsyncrc` is load-bearing for *fetching*. The rest are the ways a second
-account goes subtly wrong: mail filed to the wrong Sent folder, replies leaving
-through the wrong server, notmuch treating your own address as a stranger's.
+```bash
+pass insert <entry>                      # for msmtp's passwordeval
+sudo install -o mailsync -g mailsync -m 0600 /dev/null /var/lib/mailsync/creds/<acct>
+pass <entry> | head -1 | tr -d '\n' | sudo tee /var/lib/mailsync/creds/<acct> >/dev/null
+```
 
-Then, in order: `mbsync -l nosuchchannel` (parse), `mbsync -l <channel>`
-(auth/TLS), `mbsync -V <channel>` (fetch), `notmuch new`, and only then
-`systemctl --user restart goimapnotify`.
+The maildir itself needs no `mkdir` — `Create Near` makes mbsync build it, and
+it inherits `mail-ro` from the setgid bit on `/var/lib/mail`. The pass entry
+lands in `pass/password-store/` **inside this repo**, tracked, so it needs a
+commit like any other file.
+
+Only `mailsync/mbsyncrc` plus the credential file are load-bearing for
+*fetching*. The rest are the ways a second account goes subtly wrong: mail
+filed to the wrong Sent folder, replies leaving through the wrong server,
+notmuch treating your own address as a stranger's.
+
+Then, in order:
+
+```bash
+mbsync -c mail/mailsync/mbsyncrc -l nosuchchannel              # parse
+sudo -u mailsync mbsync -c /var/lib/mailsync/mbsyncrc -l <ch>  # auth/TLS
+sudo -u mailsync mbsync -c /var/lib/mailsync/mbsyncrc -V <ch>  # fetch
+notmuch new
+sudo install -o mailsync -g mailsync -m 0640 \
+     mail/mailsync/goimapnotify.yaml /var/lib/mailsync/goimapnotify.yaml
+sudo systemctl restart goimapnotify
+```
+
+Editing anything under `mailsync/` in this repo has no effect until it is
+re-deployed with `sudo install` — the runtime copies are copies, not symlinks,
+because `mailsync` cannot read `$HOME`.
 
 Gmail, if it's next, is not this easy: it needs an app password (or OAuth2, via
 `xoAuth2` in goimapnotify), and its labels-as-folders mean `Patterns` wants
@@ -348,9 +514,22 @@ arrives several times over.
 
 Sync, sending, Emacs and the KIT account are all done (sections above). Left:
 
-1. A TUI — `aerc` or `neomutt`, both have notmuch backends.
-2. `synchronize_flags=true`, so read/unread round-trips to the server instead
-   of living only in the local index.
+1. **`ykman openpgp keys set-touch enc on`.** Nothing unattended calls `pass`
+   anymore — that was the only thing forcing the touch policy off. With it on,
+   `msmtp` sending requires a physical Yubikey touch per message, so a rogue
+   process running as joseph cannot send mail as you even though it can reach
+   `passwordeval`. Do this only after the sync has run clean for a day; a
+   surviving unattended `pass` caller would hang waiting for a finger.
+2. A TUI — `aerc` or `neomutt`, both have notmuch backends.
+3. `synchronize_flags=true`, so read/unread round-trips to the server instead
+   of living only in the local index. **Not free under the uid split**: notmuch
+   would start renaming maildir files, so every directory under `/var/lib/mail`
+   needs `2770` instead of `2750` and the fetch units need `UMask=0007`.
+   `rename(2)` needs write on the *directory*, not the file, so file modes can
+   stay as they are. Local flag changes would also need to reach the server,
+   which means a signal in the other direction — a stamp file joseph writes and
+   a `mailsync`-side `.path` unit watching it, or just letting the 30 min timer
+   pick it up.
 
 
 ## IDEAS

@@ -1,0 +1,13 @@
+[Unit]
+Description=Index fetched mail (notmuch) and notify
+Documentation=file:%h/config/mail/README.md
+
+[Service]
+Type=oneshot
+ExecStart=%h/config/mail/index-and-notify.sh
+
+[Install]
+# Enabled as a service as well as via mail-index.path. The path unit is
+# edge-triggered, so it cannot fire for a sync that completed while this user
+# manager was not running — this covers mail fetched while logged out.
+WantedBy=default.target

@@ -1,6 +1,7 @@
 # goimapnotify — hold an IMAP IDLE connection open and react to new mail.
 #
-# Started by mail/goimapnotify.service. mbsync itself has no IDLE support, so
+# Started by mail/mailsync/goimapnotify.service, as the mailsync user, from
+# /var/lib/mailsync/goimapnotify.yaml. mbsync itself has no IDLE support, so
 # this is what makes delivery live rather than polled.
 #
 # Schema traps (goimapnotify 2.x):
@@ -18,7 +19,7 @@ configurations:
       starttls: false
     username: joseph@holten.com
     # the same pass entry mbsyncrc and msmtprc use
-    passwordCMD: "pass mail/holten"
+    passwordCMD: "cat /var/lib/mailsync/creds/holten"
     xoAuth2: false
     # re-issue IDLE every 15 min; servers commonly drop idle connections
     # somewhere around 30, and RFC 2177 suggests re-idling every 29
@@ -29,7 +30,7 @@ configurations:
     # syncs; INBOX is just the trigger.
     boxes:
       - mailbox: INBOX
-        onNewMail: /home/joseph/config/mail/on-new-mail.sh holten
+        onNewMail: /usr/local/lib/mailsync/fetch.sh holten
 
   - alias: kit
     host: imap.kit.edu
@@ -41,7 +42,7 @@ configurations:
     # the KIT account name, same value as User in mbsyncrc — not the address
     username: np6630
     # top-level pass entry, not mail/kit like holten's
-    passwordCMD: "pass kit"
+    passwordCMD: "cat /var/lib/mailsync/creds/kit"
     xoAuth2: false
     idleLogoutTimeout: 15
     # Two accounts = two IDLE connections from this one process, each waking
@@ -49,4 +50,4 @@ configurations:
     # in mbsync.service passes no argument and so covers both.
     boxes:
       - mailbox: INBOX
-        onNewMail: /home/joseph/config/mail/on-new-mail.sh kit
+        onNewMail: /usr/local/lib/mailsync/fetch.sh kit

@@ -1,0 +1,36 @@
+[Unit]
+Description=IMAP IDLE watcher — triggers a mail sync the moment mail arrives
+Documentation=file:/home/joseph/config/mail/README.md
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=mailsync
+Group=mailsync
+UMask=0027
+ExecStart=/usr/bin/goimapnotify -conf /var/lib/mailsync/goimapnotify.yaml
+
+# The old failure mode is gone: passwordCMD no longer calls pass, so this no
+# longer depends on gpg-agent and the Yubikey being ready at session start.
+# What remains is the ordinary one — the network dropping, or a server closing
+# the IDLE connection in a way the client cannot recover from.
+Restart=always
+RestartSec=30
+
+# Same sandbox as mbsync.service. fetch.sh runs as a child of this unit and so
+# inherits it, which is why /var/lib/mail is writable here too.
+NoNewPrivileges=yes
+ProtectHome=yes
+ProtectSystem=strict
+ReadWritePaths=/var/lib/mail /var/lib/mailsync/pub
+PrivateTmp=yes
+PrivateDevices=yes
+ProtectKernelTunables=yes
+ProtectControlGroups=yes
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+RestrictNamespaces=yes
+LockPersonality=yes
+
+[Install]
+WantedBy=multi-user.target

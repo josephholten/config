@@ -1,0 +1,34 @@
+[Unit]
+Description=Fetch mail (mbsync) as the mailsync user
+Documentation=file:/home/joseph/config/mail/README.md
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=mailsync
+Group=mailsync
+# Files land 0640 / dirs 0750; the setgid bit on /var/lib/mail and
+# /var/lib/mailsync/pub gives them group mail-ro, so joseph can read both the
+# maildir and the stamp. Joseph gets no write access — notmuch is configured
+# with synchronize_flags=false, so it never renames a maildir file.
+UMask=0027
+ExecStart=/usr/local/lib/mailsync/fetch.sh
+
+# No credential is reachable from joseph's uid, but this service does hold it
+# in memory, so it is worth making it a poor place to pivot from.
+# ProtectHome=yes is the one that matters most here: it hides /home entirely,
+# so a compromised mbsync cannot read the mail it just fetched from the other
+# side, nor anything else of joseph's.
+NoNewPrivileges=yes
+ProtectHome=yes
+ProtectSystem=strict
+ReadWritePaths=/var/lib/mail /var/lib/mailsync/pub
+PrivateTmp=yes
+PrivateDevices=yes
+ProtectKernelTunables=yes
+ProtectControlGroups=yes
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+RestrictNamespaces=yes
+LockPersonality=yes
+# Check with: systemd-analyze security mbsync.service

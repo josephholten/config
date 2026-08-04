@@ -1,0 +1,17 @@
+[Unit]
+Description=Watch for a completed mail fetch by the mailsync user
+Documentation=file:%h/config/mail/README.md
+
+[Path]
+# Written by /usr/local/lib/mailsync/fetch.sh at the end of every sync. This is
+# the only signal that crosses the uid boundary: the two systemd managers are
+# separate, so After=/Requires= cannot express the dependency and the coupling
+# has to be data rather than ordering.
+#
+# PathChanged (IN_CLOSE_WRITE), not PathExists: PathExists is level-triggered
+# and would re-fire forever unless the handler deleted the stamp.
+PathChanged=/var/lib/mailsync/pub/last-sync
+Unit=mail-index.service
+
+[Install]
+WantedBy=default.target

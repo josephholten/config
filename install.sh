@@ -56,7 +56,6 @@ link emacs/init.el                  ~/.config/emacs/init.el
 link emacs/dark-monochrome-theme.el ~/.config/emacs/dark-monochrome-theme.el
 link claude/settings.json           ~/.claude/settings.json
 link claude/statusline.sh           ~/.claude/statusline.sh
-link mail/mbsyncrc                  ~/.mbsyncrc
 link mail/notmuch-config            ~/.notmuch-config
 link mail/msmtprc                   ~/.msmtprc
 link ssh/config                     ~/.ssh/config
@@ -64,11 +63,14 @@ link gnupg/gpg.conf                 ~/.gnupg/gpg.conf
 link gnupg/scdaemon.conf            ~/.gnupg/scdaemon.conf
 
 echo "== systemd user units =="
-link mail/goimapnotify.service ~/.config/systemd/user/goimapnotify.service
-link mail/mbsync.service       ~/.config/systemd/user/mbsync.service
-link mail/mbsync.timer         ~/.config/systemd/user/mbsync.timer
+# Fetching moved to the mailsync user, so the units that hold the credential
+# are system units under mail/mailsync/ and are installed with sudo, not from
+# here. What is left on this side is indexing: notmuch is joseph's, and
+# notify-send needs a session bus a system service does not have.
+link mail/mail-index.path      ~/.config/systemd/user/mail-index.path
+link mail/mail-index.service   ~/.config/systemd/user/mail-index.service
 systemctl --user daemon-reload
-systemctl --user enable goimapnotify.service mbsync.timer
+systemctl --user enable mail-index.path mail-index.service
 
 echo "== scripts into ~/bin (xprofile/i3 expect these) =="
 link cluster-load/cluster-load             ~/bin/cluster-load
@@ -101,10 +103,12 @@ cat <<EOF
  - make -C fullscreen_warning install # needed by lock/battery chain
  - make -C xsecurelock install # saver_battery, needed by lock screen
  - yay -S pass-git-helper      # git/config expects /sbin/pass-git-helper
- - mail: pass insert mail/holten; fill in Host/User in mail/mbsyncrc;
-         mkdir -p ~/mail/holten; mbsync -l holten   (see mail/README.md)
- - mail (kit): pass insert kit   (top-level entry, not mail/kit);
-         mkdir -p ~/mail/kit; mbsync -l kit
+ - mail: runs as the mailsync user, so setup is manual and needs sudo —
+         useradd mailsync, 0600 credentials under /var/lib/mailsync/creds,
+         maildir at /var/lib/mail, then deploy mail/mailsync/* to
+         /var/lib/mailsync and /etc/systemd/system  (see mail/README.md)
+ - mail: parse-check a config without network or credentials with
+         mbsync -c mail/mailsync/mbsyncrc -l nosuchchannel
  - gpg: import private key from backup; public key is gnupg/$(basename "$CONFIG"/gnupg/*.asc)
  - restic: resticprofile --config $HOST/restic/profiles.yaml schedule
  - wireguard: copy wireguard/jvpn.conf.template to /etc/wireguard, fill in keys (server only)

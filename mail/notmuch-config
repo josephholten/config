@@ -7,10 +7,8 @@
 # re-run install.sh.
 
 [database]
-# absolute, not ~ — notmuch does not expand it in all versions.
-# One directory above the per-account maildirs, so more accounts can be
-# added under ~/mail/ later and share one index (stored in ~/mail/.notmuch).
-path=/home/joseph/mail
+mail_root=/var/lib/mail
+path=/home/joseph/.local/state/notmuch
 
 [user]
 name=Joseph Holten

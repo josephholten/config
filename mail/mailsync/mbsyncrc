@@ -1,7 +1,9 @@
-# mbsync (isync) — pull IMAP into ~/mail as a Maildir.
+# mbsync (isync) — pull IMAP into /var/lib/mail as a Maildir.
 #
-# Symlinked to ~/.mbsyncrc by install.sh. Password comes from pass, which
-# goes through gpg-agent / the Yubikey — see mail/README.md.
+# Run by the mailsync user, not joseph: deployed to /var/lib/mailsync/mbsyncrc
+# and passed via `mbsync -c`. Paths are absolute because mailsync has no
+# ~/mail, and PassCmd reads a 0600 file it alone can open — no pass, no
+# gpg-agent, no Yubikey, so the sync runs unattended.
 #
 # Written for isync >= 1.4 (Arch ships 1.5.x): the keywords are Far/Near and
 # TLSType. Most tutorials online still say Master/Slave and SSLType, which
@@ -11,7 +13,7 @@ IMAPAccount holten
 Host        imap.one.com              # IMAP/Incoming server
 Port        993
 User        joseph@holten.com
-PassCmd     "pass mail/holten"
+PassCmd     "cat /var/lib/mailsync/creds/holten"
 TLSType     IMAPS
 CertificateFile /etc/ssl/certs/ca-certificates.crt
 
@@ -19,8 +21,8 @@ IMAPStore holten-remote
 Account   holten
 
 MaildirStore holten-local
-Path       ~/mail/holten/
-Inbox      ~/mail/holten/INBOX
+Path       /var/lib/mail/holten/
+Inbox      /var/lib/mail/holten/INBOX
 SubFolders Verbatim
 
 Channel holten
@@ -40,13 +42,13 @@ Patterns * !Trash !"Trash/*" !"Deleted Items" !Spam !spam
 # locally flags it rather than removing it from the server — deliberate.
 
 # --- KIT ---------------------------------------------------------------
-# Second account. Its maildir sits beside holten's under ~/mail/, which is
-# what makes both share one notmuch index (database.path is ~/mail, one level
-# up — see notmuch-config).
+# Second account. Its maildir sits beside holten's under /var/lib/mail/, which
+# is what makes both share one notmuch index (database.mail_root is
+# /var/lib/mail, one level up — see notmuch-config).
 #
 # User is the KIT account name (np6630), not the address np6630@kit.edu.
-# The credential is `pass kit`, a top-level entry — NOT mail/kit, unlike
-# holten's. Host/Port are the SCC values; confirm with
+# The credential file is creds/kit, from the top-level `pass kit` entry — NOT
+# mail/kit, unlike holten's. Host/Port are the SCC values; confirm with
 #   mbsync -l kit
 # which lists folders and transfers nothing.
 
@@ -54,7 +56,7 @@ IMAPAccount kit
 Host        imap.kit.edu
 Port        993
 User        np6630
-PassCmd     "pass kit"
+PassCmd     "cat /var/lib/mailsync/creds/kit"
 # Required. AuthMechs defaults to `*`, and KIT's Exchange server advertises
 # NTLM, which mbsync then prefers over LOGIN — and it fails with
 #   AUTHENTICATE NTLM ... returned an error: AUTHENTICATE failed
@@ -76,8 +78,8 @@ IMAPStore kit-remote
 Account   kit
 
 MaildirStore kit-local
-Path       ~/mail/kit/
-Inbox      ~/mail/kit/INBOX
+Path       /var/lib/mail/kit/
+Inbox      /var/lib/mail/kit/INBOX
 SubFolders Verbatim
 
 Channel kit
