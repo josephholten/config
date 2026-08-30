@@ -711,11 +711,7 @@ happen while the alist ends in a \"\" catch-all."
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(custom-safe-themes '(default))
- '(package-selected-packages
-   '(anki calibredb cmake-mode consult doom-modeline ein elfeed
-          evil-collection flycheck general git-gutter-fringe
-          julia-mode lsp-ui magit mu4e multi-vterm nov orderless
-          projectile shrface ultra-scroll vertico wallabag)))
+ '(package-selected-packages nil))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
