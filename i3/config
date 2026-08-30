@@ -238,3 +238,7 @@ for_window [class=PETSc] floating enable
 for_window [class=Vtk] floating enable
 for_window [class=feh] floating enable
 for_window [class=AusweisApp] floating enable
+for_window [class=PrismLauncher] floating enable
+
+for_window [window_role="(?i)^(pop-?up|bubble|task_dialog|Preferences)$"] floating enable
+for_window [window_type="dialog"] floating enable
