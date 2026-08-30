@@ -354,6 +354,7 @@ xss-lock
 xterm
 yay
 yubikey-manager
+yubikey-touch-detector
 zathura
 zathura-pdf-mupdf
 zip
